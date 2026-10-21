@@ -1,0 +1,2413 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>벨벳 카지노</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Limelight&family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* 레이아웃: 화면 하나씩 갈아 끼우는 구조(입구 → 로비 → 테이블/상점/친구 방).
+   한 가지 세계만 그린다: 밤의 고급 카지노(옻칠 검정, 버건디 벨벳, 에메랄드 펠트, 황동). */
+:root {
+  color-scheme: dark;
+  --ink: #0e0b0a;
+  --lacquer: #17110f;
+  --velvet: #3d0f1d;
+  --velvet-hi: #5a1a2c;
+  --felt: #0f4a36;
+  --felt-deep: #092e22;
+  --brass: #c9a14a;
+  --brass-hi: #ecd28e;
+  --ivory: #f3ead7;
+  --muted: #b8aa90;
+  --card-red: #b0142f;
+  --danger: #e9667a;
+  --good: #86d6a8;
+  --line: rgba(201, 161, 74, .35);
+  --f-deco: "Limelight", "Nanum Myeongjo", Georgia, serif;
+  --f-display: "Nanum Myeongjo", "AppleMyungjo", Georgia, serif;
+  --f-body: "IBM Plex Sans KR", system-ui, -apple-system, "Malgun Gothic", sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --cw: 54px;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0; background: var(--ink); color: var(--ivory); font: 15px/1.55 var(--f-body);
+  background-image: radial-gradient(1200px 600px at 50% -10%, rgba(93, 26, 44, .55), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(201,161,74,.035) 0 1px, transparent 1px 64px);
+}
+button { font: inherit; color: inherit; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 18px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 2px; }
+
+/* ── 버튼 ── */
+.btn { border: 1px solid var(--line); background: linear-gradient(#241a16, #170f0d); border-radius: 999px; padding: 10px 18px; cursor: pointer; font-weight: 600; letter-spacing: .01em; min-height: 42px; }
+.btn:hover:not(:disabled) { border-color: var(--brass); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.gold { background: linear-gradient(180deg, var(--brass-hi), var(--brass) 60%, #9c7a2f); color: #2a1a08; border-color: #f5e2a8; }
+.btn.red { background: linear-gradient(#6a1b2c, #46101d); border-color: #8d3247; }
+.btn.small { padding: 6px 12px; min-height: 34px; font-size: 13.5px; }
+.chipline { display: inline-flex; align-items: center; gap: 6px; }
+.chip-ico { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle, var(--brass-hi) 0 28%, var(--velvet) 30% 44%, var(--brass) 46%); box-shadow: 0 0 0 1px #6b4f1c; flex: none; }
+
+/* ── 입구 ── */
+#door { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; overflow: hidden; background: var(--ink);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.door-panel { position: absolute; top: 0; bottom: 0; width: 50%; background:
+  repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 2px, transparent 2px 22px), linear-gradient(90deg, var(--velvet), var(--velvet-hi) 50%, var(--velvet));
+  transition: transform 1.1s cubic-bezier(.7,0,.2,1); }
+.door-panel.l { left: 0; border-right: 2px solid var(--brass); }
+.door-panel.r { right: 0; border-left: 2px solid var(--brass); }
+.door-panel::after { content: ""; position: absolute; top: 50%; width: 10px; height: 70px; margin-top: -35px; border-radius: 6px; background: linear-gradient(var(--brass-hi), var(--brass)); }
+.door-panel.l::after { right: 18px; } .door-panel.r::after { left: 18px; }
+#door.open .door-panel.l { transform: translateX(-102%); } #door.open .door-panel.r { transform: translateX(102%); }
+.sign { position: relative; z-index: 2; text-align: center; display: grid; gap: 14px; justify-items: center; transition: opacity .5s; padding: 28px 24px; border: 1px solid var(--line); border-radius: 18px; background: rgba(14,11,10,.72); backdrop-filter: blur(2px); max-width: 520px; }
+#door.open .sign { opacity: 0; }
+.sign .deco { font-family: var(--f-deco); font-size: clamp(54px, 15vw, 104px); line-height: .95; color: var(--brass-hi); letter-spacing: .06em;
+  text-shadow: 0 0 18px rgba(236,210,142,.55), 0 0 2px #fff7d8; animation: flick 6s infinite; }
+@keyframes flick { 0%, 92%, 100% { opacity: 1; } 93% { opacity: .55; } 94% { opacity: 1; } 96% { opacity: .7; } }
+.sign .ko { font-family: var(--f-display); font-weight: 800; font-size: 22px; letter-spacing: .5em; margin-right: -.5em; color: var(--ivory); }
+.sign .rule { width: 220px; height: 10px; background: linear-gradient(90deg, transparent, var(--brass) 20%, var(--brass) 80%, transparent); -webkit-mask: radial-gradient(circle at 50% 50%, #000 3px, transparent 4px) 0 0/20px 10px repeat-x, linear-gradient(#000 0 0) 0 4px/100% 2px no-repeat; mask: radial-gradient(circle at 50% 50%, #000 3px, transparent 4px) 0 0/20px 10px repeat-x, linear-gradient(#000 0 0) 0 4px/100% 2px no-repeat; }
+.sign p { margin: 0; color: var(--muted); max-width: 34ch; }
+.dress { font: 600 11px/1 var(--f-num); letter-spacing: .25em; text-transform: uppercase; color: var(--muted); }
+
+/* ── 상단 바 ── */
+.topbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(23,17,15,.85); }
+.brand { font-family: var(--f-deco); color: var(--brass-hi); font-size: 22px; letter-spacing: .06em; margin-right: auto; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+.adm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 12px; margin: 8px 0 12px; }
+.adm-row { display: grid; gap: 4px; font-size: 14px; color: var(--ivory); }
+.adm-check { grid-template-columns: auto 1fr; align-items: center; gap: 8px; cursor: pointer; }
+.adm-check input { width: 18px; height: 18px; accent-color: var(--brass); }
+.stat { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); }
+.stat b { color: var(--ivory); font-family: var(--f-num); font-size: 16px; font-variant-numeric: tabular-nums; }
+.sus { width: 90px; height: 8px; border-radius: 4px; background: #2b211d; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.sus i { display: block; height: 100%; background: linear-gradient(90deg, #d9a441, var(--danger)); }
+
+/* ── 로비 ── */
+.lobby-head { margin: 26px 0 14px; display: grid; gap: 4px; }
+h1, h2 { font-family: var(--f-display); font-weight: 800; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h1 { font-size: clamp(26px, 4.5vw, 36px); } h2 { font-size: 22px; }
+.sub { color: var(--muted); margin: 0; }
+.paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .paths { grid-template-columns: minmax(0, 1fr); } }
+.path { position: relative; border-radius: 18px 18px 14px 14px; padding: 22px 18px 18px; display: grid; gap: 12px; min-width: 0; overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.06), transparent 60%), linear-gradient(180deg, var(--felt), var(--felt-deep));
+  border: 1px solid var(--line); box-shadow: inset 0 0 0 6px rgba(0,0,0,.18); }
+.path.bj { background: radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.06), transparent 60%), linear-gradient(180deg, #4a1424, #2a0b15); }
+.path .arch { position: absolute; inset: 0 0 auto; height: 6px; background: linear-gradient(90deg, transparent, var(--brass), transparent); }
+.path h2 { font-size: 24px; }
+.path .rules { color: #d8ccb3; font-size: 14px; margin: 0; }
+.path .fan { display: flex; gap: 0; height: 64px; align-items: flex-end; }
+.path .fan .card { --cw: 40px; margin-right: -14px; transform-origin: bottom center; }
+.tiers { display: flex; gap: 6px; flex-wrap: wrap; }
+.tier { border: 1px solid var(--line); background: rgba(0,0,0,.25); border-radius: 999px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
+.tier[aria-pressed="true"] { background: var(--brass); color: #2a1a08; border-color: var(--brass-hi); font-weight: 600; }
+.tier:disabled { opacity: .45; cursor: not-allowed; }
+.tierinfo { font-size: 13px; color: var(--muted); min-height: 2.8em; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.side { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+@media (max-width: 860px) { .side { grid-template-columns: minmax(0, 1fr); } }
+.panel { border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: rgba(23,17,15,.8); display: grid; gap: 10px; min-width: 0; align-content: start; }
+.panel h3 { margin: 0; font-family: var(--f-display); font-size: 18px; }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+input[type=number], input[type=text], input[type=password] { background: #120d0b; color: var(--ivory); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; font: 15px var(--f-num); width: 100%; min-width: 0; }
+input[type=range] { width: 100%; accent-color: var(--brass); }
+
+/* ── 카드 ── */
+.card { --ch: calc(var(--cw) * 1.4); width: var(--cw); height: var(--ch); border-radius: calc(var(--cw) * .12); background: #fbf7ee; color: #16110d;
+  display: inline-grid; grid-template-rows: auto 1fr; padding: calc(var(--cw) * .07); position: relative; flex: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.12); font-family: var(--f-num); user-select: none; }
+.card b { font-size: calc(var(--cw) * .34); line-height: 1; font-weight: 600; letter-spacing: -.04em; }
+.card i { font-style: normal; font-size: calc(var(--cw) * .5); line-height: 1; place-self: center; font-family: "Segoe UI Symbol", "Apple Symbols", "DejaVu Sans", serif; }
+.card.red { color: var(--card-red); }
+.card.back { background: repeating-linear-gradient(45deg, rgba(236,210,142,.35) 0 2px, transparent 2px 9px), repeating-linear-gradient(-45deg, rgba(236,210,142,.35) 0 2px, transparent 2px 9px), linear-gradient(var(--velvet-hi), var(--velvet));
+  box-shadow: 0 2px 6px rgba(0,0,0,.45), inset 0 0 0 3px #f2e5c2, inset 0 0 0 4px var(--brass); }
+.card.up-mark::after { content: ""; position: absolute; inset: -3px; border-radius: inherit; box-shadow: 0 0 0 2px var(--brass-hi); }
+.card.dim { filter: brightness(.55); }
+.card.peek::after { content: "엿봄"; position: absolute; bottom: -18px; left: 0; right: 0; text-align: center; font: 600 10px var(--f-body); color: var(--brass-hi); }
+.cards { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-end; }
+.cards.tight .card { margin-right: calc(var(--cw) * -0.45); }
+button.card { border: 0; cursor: pointer; }
+button.card.sel-discard { transform: translateY(8px); filter: grayscale(1) brightness(.6); }
+button.card.sel-open { transform: translateY(-10px); box-shadow: 0 0 0 3px var(--brass-hi), 0 6px 14px rgba(0,0,0,.5); }
+button.card.pick { outline: 3px solid var(--brass-hi); outline-offset: 2px; }
+
+/* ── 테이블 ── */
+.tablebar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 14px 0 10px; }
+.tablebar h2 { margin-right: auto; }
+.felt { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 64vh; min-height: 330px; border-radius: 999px / 70%;
+  background: radial-gradient(ellipse at 50% 45%, #18624a, var(--felt) 45%, var(--felt-deep) 80%);
+  box-shadow: 0 0 0 10px #2a1810, 0 0 0 12px var(--brass), 0 0 0 22px #1b0f0a, 0 20px 60px rgba(0,0,0,.6), inset 0 0 70px rgba(0,0,0,.5);
+  margin: 26px auto 26px; }
+@media (max-width: 640px) { .felt { aspect-ratio: 3 / 4; max-height: none; border-radius: 46% / 32%; } :root { --cw: 42px; } }
+.felt .stamp { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); font-family: var(--f-deco); color: rgba(236,210,142,.18); font-size: clamp(22px, 4vw, 40px); letter-spacing: .1em; pointer-events: none; white-space: nowrap; }
+.center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; gap: 8px; justify-items: center; text-align: center; width: min(80%, 460px); }
+.pot { font: 600 15px var(--f-num); color: var(--brass-hi); background: rgba(0,0,0,.35); padding: 4px 12px; border-radius: 999px; }
+.seat { position: absolute; transform: translate(-50%, -50%); display: grid; gap: 4px; justify-items: center; width: 132px; text-align: center; }
+.seat .plate { background: rgba(14,11,10,.86); border: 1px solid var(--line); border-radius: 12px; padding: 5px 10px; min-width: 104px; }
+.seat .nm { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+.seat .st { font: 600 12.5px var(--f-num); color: var(--brass-hi); }
+.seat.turn .plate { border-color: var(--brass-hi); box-shadow: 0 0 0 2px var(--brass), 0 0 18px rgba(236,210,142,.5); }
+.seat.fold { opacity: .45; }
+.seat.win .plate { border-color: var(--good); box-shadow: 0 0 0 2px var(--good); }
+.seat .cards { flex-wrap: nowrap; }
+.seat .cards .card { --cw: 34px; }
+@media (max-width: 640px) { .seat { width: 96px; } .seat .plate { min-width: 84px; padding: 4px 6px; } .seat .cards .card { --cw: 26px; } .seat .nm { max-width: 86px; font-size: 12px; } }
+.betchip { font: 600 12px var(--f-num); background: rgba(0,0,0,.45); border-radius: 999px; padding: 2px 8px; color: var(--ivory); }
+.bubble { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 12px; background: var(--ivory); color: #1d1410; padding: 3px 9px; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,.4); animation: pop .25s ease-out; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+@keyframes pop { from { transform: translate(-50%, 6px); opacity: 0; } }
+.tag { font: 600 10.5px var(--f-num); letter-spacing: .08em; color: #2a1a08; background: var(--brass); border-radius: 4px; padding: 1px 5px; }
+.dealer-btn { width: 22px; height: 22px; border-radius: 50%; background: var(--ivory); color: #1d1410; font: 700 11px var(--f-num); display: grid; place-items: center; }
+
+#scrTable { overflow-x: clip; }
+/* ── 내 자리 · 조작 ── */
+.myarea { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+@media (max-width: 860px) { .myarea { grid-template-columns: minmax(0, 1fr); } }
+.hand-panel { border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: rgba(23,17,15,.85); display: grid; gap: 12px; min-width: 0; }
+.hand-panel .mycards .card { --cw: 64px; }
+@media (max-width: 640px) { .hand-panel .mycards .card { --cw: 50px; } }
+.handname { font-family: var(--f-display); font-weight: 800; font-size: 18px; color: var(--brass-hi); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.actions .btn { flex: 1 1 auto; }
+.raise { display: grid; gap: 8px; }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.status { font-weight: 600; text-wrap: balance; }
+.status.warn { color: var(--danger); }
+.result { border-radius: 12px; padding: 10px 12px; background: rgba(134,214,168,.12); border: 1px solid rgba(134,214,168,.4); }
+.result.lose { background: rgba(233,102,122,.1); border-color: rgba(233,102,122,.4); }
+.bag { display: flex; gap: 8px; flex-wrap: wrap; }
+.item-btn { display: grid; grid-template-columns: auto 1fr; gap: 0 8px; align-items: center; text-align: left; border: 1px solid var(--line); background: #1a120f; border-radius: 12px; padding: 7px 10px; cursor: pointer; min-width: 0; }
+.item-btn:disabled { opacity: .38; cursor: not-allowed; }
+.item-btn .ico { grid-row: span 2; font-size: 20px; width: 30px; text-align: center; }
+.item-btn b { font-size: 13.5px; }
+.item-btn small { color: var(--muted); font-size: 11.5px; }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 13px; color: var(--muted); max-height: 180px; overflow-y: auto; }
+.log li:last-child { color: var(--ivory); }
+.chooser { display: grid; gap: 8px; padding: 10px; border: 1px dashed var(--brass); border-radius: 12px; }
+
+/* ── 상점 ── */
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.ware { border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: linear-gradient(180deg, #1d1411, #140d0b); display: grid; gap: 8px; align-content: start; min-width: 0; }
+.ware .head { display: flex; gap: 10px; align-items: center; }
+.ware .ico { font-size: 28px; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; background: rgba(201,161,74,.12); }
+.ware h3 { margin: 0; font-size: 17px; font-family: var(--f-display); }
+.ware .kind { font: 600 10.5px var(--f-num); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.ware .kind.cheat { color: var(--danger); }
+.ware p { margin: 0; font-size: 13.5px; color: #d8ccb3; }
+.ware .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ware .own { font-size: 12.5px; color: var(--muted); }
+
+/* ── 덮개 ── */
+.overlay { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(8,6,5,.78); padding: 16px; }
+.dialog { width: min(440px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; background: linear-gradient(180deg, #221815, #160f0d); border: 1px solid var(--brass); border-radius: 16px; padding: 20px; display: grid; gap: 12px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+.dialog h2 { font-size: 22px; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; background: var(--ivory); color: #1d1410; padding: 10px 16px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.5); font-weight: 600; max-width: calc(100% - 32px); text-align: center; }
+
+/* ── 친구 방 ── */
+.tables-list { display: grid; gap: 8px; }
+.tables-list .trow { display: flex; gap: 10px; align-items: center; justify-content: space-between; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; flex-wrap: wrap; }
+.code { font: 600 18px var(--f-num); letter-spacing: .14em; color: var(--brass-hi); }
+@media (prefers-reduced-motion: reduce) { .door-panel { transition: none; } .sign .deco { animation: none; } .bubble { animation: none; } }
+</style>
+</head>
+<body>
+<div id="door">
+  <div class="door-panel l"></div><div class="door-panel r"></div>
+  <div class="sign">
+    <div class="dress">Est. 1926 · Dress code: smart</div>
+    <div class="deco">VELVET</div>
+    <div class="ko">벨벳 카지노</div>
+    <div class="rule" aria-hidden="true"></div>
+    <p id="doorNote">홀덤, 세븐 포커, 블랙잭. 매일 아침 6시, 칩이 100 이하면 100칩까지 채워 드립니다.</p>
+    <button class="btn gold" id="enter">입장하기</button>
+  </div>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div class="topbar">
+    <span class="brand">VELVET</span>
+    <span class="stat"><span class="chip-ico"></span>칩 <b id="wChips">0</b></span>
+    <span class="stat" id="wVaultBox" hidden>금고 <b id="wVault">0</b></span>
+    <span class="stat" title="속임수 아이템을 쓸수록 올라가요. 100이 되면 오늘 하루 쫓겨나요.">의심 <span class="sus"><i id="wSus" style="width:0%"></i></span><b id="wSusN">0</b></span>
+    <span class="stat" id="wSave"></span>
+    <button class="btn small" id="toLobby" hidden>로비로</button>
+    <button class="btn small" id="wLogout" hidden>로그아웃</button>
+  </div>
+  <section id="scrLobby"></section>
+  <section id="scrTable" hidden></section>
+  <section id="scrShop" hidden></section>
+  <section id="scrFriends" hidden></section>
+</div>
+
+<div class="overlay" id="ov" hidden><div class="dialog" id="ovBox" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+/* ===== 벨벳 카지노 · 게임 엔진 =====
+   카드 0~51. 숫자 = c >> 2 (0:2 … 12:A), 무늬 = c & 3 (0 ♠, 1 ♥, 2 ♦, 3 ♣).
+   게임 규칙은 "판 상태 + 행동" 구조라서, 누가 행동하든(나, AI, 친구) 똑같이 진행된다. */
+const Cas = (() => {
+  // ── 기본 도구 ──
+  function mulberry(seed) {
+    let a = seed >>> 0;
+    return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function shuffle(a, r) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  const RK = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+  const SU = ['♠', '♥', '♦', '♣'];
+  const SUIT_NAME = ['스페이드', '하트', '다이아', '클로버'];
+  const rankOf = (c) => c >> 2, suitOf = (c) => c & 3;
+  const cardName = (c) => SU[c & 3] + RK[c >> 2];
+  const parse = (s) => { const r = s.slice(0, -1).toUpperCase().replace('T', '10'); return RK.indexOf(r) * 4 + 'SHDC'.indexOf(s.slice(-1).toUpperCase()); };
+  function newDeck(n = 1) { const d = []; for (let k = 0; k < n; k++) for (let c = 0; c < 52; c++) d.push(c); return d; }
+
+  // ── 족보 판정: 카드 1~7장 중 가장 좋은 5장 ──
+  const CAT = ['하이카드', '원페어', '투페어', '트리플', '스트레이트', '플러시', '풀하우스', '포카드', '스트레이트 플러시'];
+  const P5 = 1048576; // 16^5
+  function score(cat, ks) { let v = cat; for (let i = 0; i < 5; i++) v = v * 16 + (ks[i] !== undefined ? ks[i] + 1 : 0); return v; }
+  function straightHigh(mask) {
+    for (let h = 12; h >= 3; h--) {
+      let ok = true;
+      for (let k = 0; k < 5; k++) { const r = h - k; if (!(mask & (1 << (r < 0 ? 12 : r)))) { ok = false; break; } }
+      if (ok) return h;
+    }
+    return -1;
+  }
+  function evalHand(cards) {
+    const rc = new Array(13).fill(0), sc = [[], [], [], []];
+    for (const c of cards) { rc[c >> 2]++; sc[c & 3].push(c >> 2); }
+    let fl = null;
+    for (const s of sc) if (s.length >= 5) fl = s.slice().sort((a, b) => b - a);
+    if (fl) { let m = 0; for (const r of fl) m |= 1 << r; const sh = straightHigh(m); if (sh >= 0) return score(8, [sh]); }
+    const g = [];
+    for (let r = 12; r >= 0; r--) if (rc[r]) g.push([rc[r], r]);
+    if (!g.length) return 0;
+    g.sort((a, b) => b[0] - a[0] || b[1] - a[1]);
+    const rest = (skip) => g.filter((x) => !skip.includes(x[1])).map((x) => x[1]).sort((a, b) => b - a);
+    if (g[0][0] === 4) return score(7, [g[0][1], ...rest([g[0][1]]).slice(0, 1)]);
+    if (g[0][0] === 3 && g.length > 1 && g[1][0] >= 2) return score(6, [g[0][1], g[1][1]]);
+    if (fl) return score(5, fl.slice(0, 5));
+    let m = 0; for (let r = 0; r < 13; r++) if (rc[r]) m |= 1 << r;
+    const sh = straightHigh(m); if (sh >= 0) return score(4, [sh]);
+    if (g[0][0] === 3) return score(3, [g[0][1], ...rest([g[0][1]]).slice(0, 2)]);
+    if (g[0][0] === 2 && g.length > 1 && g[1][0] === 2) return score(2, [g[0][1], g[1][1], ...rest([g[0][1], g[1][1]]).slice(0, 1)]);
+    if (g[0][0] === 2) return score(1, [g[0][1], ...rest([g[0][1]]).slice(0, 3)]);
+    return score(0, rest([]).slice(0, 5));
+  }
+  function handName(v) {
+    const cat = Math.floor(v / P5), top = Math.floor(v / 65536) % 16 - 1;
+    if (cat === 8 && top === 12) return '로열 스트레이트 플러시';
+    if (cat === 0) return (RK[top] || '') + ' 하이';
+    if (cat === 2) { const second = Math.floor(v / 4096) % 16 - 1; return RK[top] + '·' + RK[second] + ' 투페어'; }
+    if (cat === 4 || cat === 8 || cat === 5) return RK[top] + ' ' + CAT[cat];
+    return RK[top] + ' ' + CAT[cat];
+  }
+
+  // ── 포커 (홀덤 · 세븐포커) ──
+  const PERSONA = {
+    rock: { name: '바위', bet: 1.35, raise: 1.65, aggr: 0.7, bluff: 0.03, callMul: 1.15, loose: 0, size: 0.6 },
+    bluffer: { name: '허풍쟁이', bet: 1.1, raise: 1.35, aggr: 0.85, bluff: 0.28, callMul: 1.0, loose: 0.04, size: 0.85 },
+    station: { name: '고집쟁이', bet: 1.45, raise: 1.75, aggr: 0.3, bluff: 0.04, callMul: 0.7, loose: 0.12, size: 0.5 },
+    calc: { name: '계산기', bet: 1.25, raise: 1.5, aggr: 0.6, bluff: 0.1, callMul: 1.0, loose: 0, size: 0.65 }
+  };
+
+  function makePoker(game, o) {
+    return {
+      kind: 'poker', game, sb: o.sb || 1, bb: o.bb || 2, ante: o.ante || 0, unit: o.unit || o.bb || 2,
+      seats: o.seats.map((s) => seatInit(s)), button: -1, deck: [], board: [], street: 0, phase: 'idle',
+      toAct: -1, curBet: 0, minRaise: o.bb || 2, raises: 0, handNo: 0, log: [], results: null, rig: {}, r: o.r || Math.random,
+      lastAct: null, peeks: []
+    };
+  }
+  function seatInit(s) {
+    return Object.assign({ cards: [], up: [], folded: true, allin: false, bet: 0, contrib: 0, acted: false, chosen: false, away: false, drunk: 0 }, s);
+  }
+  const inHand = (t) => t.seats.map((s, i) => i).filter((i) => !t.seats[i].folded);
+  const potTotal = (t) => t.seats.reduce((a, s) => a + s.contrib, 0);
+  function nextIdx(t, from, pred) {
+    const n = t.seats.length;
+    for (let k = 1; k <= n; k++) { const i = (from + k) % n; if (pred(t.seats[i], i)) return i; }
+    return -1;
+  }
+  function put(t, s, amt) { amt = Math.max(0, Math.min(amt, s.stack)); s.stack -= amt; s.bet += amt; s.contrib += amt; if (s.stack === 0) s.allin = true; return amt; }
+  function say(t, text) { t.log.push(text); if (t.log.length > 40) t.log.shift(); }
+
+  // 카드 한 장 뽑기 (아이템 장치 포함)
+  function draw(t, forSeat, isBoard) {
+    let idx = 0;
+    const rg = t.rig;
+    if (isBoard && rg.suitBoard && rg.suitBoard.n > 0) {
+      const k = t.deck.findIndex((c) => suitOf(c) === rg.suitBoard.suit); if (k >= 0) idx = k; rg.suitBoard.n--;
+    } else if (!isBoard && rg.suitSeat && rg.suitSeat.seat === forSeat && rg.suitSeat.n > 0) {
+      const k = t.deck.findIndex((c) => suitOf(c) === rg.suitSeat.suit); if (k >= 0) idx = k; rg.suitSeat.n--;
+    }
+    let c = t.deck.splice(idx, 1)[0];
+    const L = rg.luck;
+    if (L && (forSeat === L.seat || isBoard) && t.deck.length && t.r() < L.p) {
+      const alt = t.deck[0], me = t.seats[L.seat];
+      const base = t.game === 'holdem' ? me.cards.concat(t.board) : me.cards.slice();
+      if (evalHand(base.concat([alt])) > evalHand(base.concat([c]))) { t.deck[0] = c; c = alt; }
+    }
+    return c;
+  }
+
+  function newHand(t) {
+    const S = t.seats;
+    for (const s of S) {
+      s.cards = []; s.up = []; s.bet = 0; s.contrib = 0; s.acted = false; s.allin = false; s.chosen = false;
+      s.folded = !(s.stack > 0 && !s.out); s.shown = false;
+    }
+    const live = inHand(t);
+    if (live.length < 2) { t.phase = 'idle'; return false; }
+    t.handNo++; t.deck = shuffle(newDeck(), t.r); t.board = []; t.results = null; t.log = []; t.curBet = 0;
+    t.minRaise = t.unit; t.raises = 0; t.street = 0; t.lastAct = null; t.peeks = [];
+    if (t.game === 'holdem') {
+      t.button = nextIdx(t, t.button < 0 ? t.seats.length - 1 : t.button, (s) => !s.folded);
+      const hu = live.length === 2;
+      const sbI = hu ? t.button : nextIdx(t, t.button, (s) => !s.folded);
+      const bbI = nextIdx(t, sbI, (s) => !s.folded);
+      put(t, S[sbI], t.sb); put(t, S[bbI], t.bb);
+      t.curBet = t.bb; t.minRaise = t.bb;
+      say(t, S[sbI].name + ' 스몰 블라인드 ' + t.sb + ', ' + S[bbI].name + ' 빅 블라인드 ' + t.bb);
+      for (let round = 0; round < 2; round++) {
+        let i = t.button;
+        for (let k = 0; k < live.length; k++) { i = nextIdx(t, i, (s) => !s.folded); S[i].cards.push(draw(t, i, false)); }
+      }
+      t.toAct = nextIdx(t, bbI, (s) => !s.folded && !s.allin);
+      t.sbI = sbI; t.bbI = bbI;
+      t.phase = 'bet';
+      if (t.toAct < 0 || needsNoAction(t)) progress(t);
+    } else {
+      t.button = nextIdx(t, t.button < 0 ? t.seats.length - 1 : t.button, (s) => !s.folded);
+      for (const i of live) put(t, S[i], t.ante);
+      for (const s of S) { s.bet = 0; }
+      say(t, '모두 앤티 ' + t.ante + '칩');
+      for (let round = 0; round < 4; round++) for (const i of live) { S[i].cards.push(draw(t, i, false)); S[i].up.push(false); }
+      t.phase = 'choose';
+    }
+    return true;
+  }
+
+  // 세븐포커: 4장 중 1장 버리고 1장 공개
+  function choose(t, i, discard, open) {
+    const s = t.seats[i];
+    if (t.phase !== 'choose' || s.folded || s.chosen) return false;
+    if (!(discard >= 0 && discard < 4 && open >= 0 && open < 4 && discard !== open)) return false;
+    const openCard = s.cards[open];
+    s.cards.splice(discard, 1); s.up = [false, false, false];
+    const oi = s.cards.indexOf(openCard);
+    // 공개 카드는 맨 뒤로
+    s.cards.splice(oi, 1); s.cards.push(openCard); s.up = [false, false, true];
+    s.chosen = true;
+    if (inHand(t).every((k) => t.seats[k].chosen)) startStreetSeven(t, 1);
+    return true;
+  }
+  function aiChoose(t, i) {
+    const cs = t.seats[i].cards;
+    let best = null;
+    for (let d = 0; d < 4; d++) {
+      const keep = cs.filter((_, k) => k !== d);
+      const v = evalHand(keep) + keep.reduce((a, c) => a + rankOf(c), 0);
+      if (!best || v > best.v) best = { v, d, keep };
+    }
+    const cnt = {}; for (const c of best.keep) cnt[rankOf(c)] = (cnt[rankOf(c)] || 0) + 1;
+    let open = best.keep.slice().sort((a, b) => (cnt[rankOf(a)] - cnt[rankOf(b)]) || (rankOf(a) - rankOf(b)))[0];
+    return choose(t, i, best.d, cs.indexOf(open));
+  }
+  function upCards(s) { return s.cards.filter((_, k) => s.up[k]); }
+  function startStreetSeven(t, st) {
+    t.street = st;
+    const live = inHand(t);
+    for (const i of live) { const s = t.seats[i]; s.cards.push(draw(t, i, false)); s.up.push(st < 4); }
+    t.curBet = 0; t.minRaise = t.unit; t.raises = 0;
+    for (const s of t.seats) { s.bet = 0; s.acted = false; }
+    t.phase = 'bet';
+    // 보이는 패가 가장 좋은 사람부터
+    let first = -1, bv = -1;
+    for (const i of live) { const s = t.seats[i]; if (s.allin) continue; const v = evalHand(upCards(s)); if (v > bv) { bv = v; first = i; } }
+    t.toAct = first;
+    say(t, ['', '4구', '5구', '6구', '히든'][st] + ' 카드');
+    if (first < 0 || needsNoAction(t)) progress(t);
+  }
+
+  function needsNoAction(t) {
+    const can = inHand(t).filter((i) => !t.seats[i].allin);
+    if (can.length === 0) return true;
+    if (can.length === 1 && t.seats[can[0]].bet >= t.curBet) return true;
+    return false;
+  }
+
+  function legal(t, i) {
+    const s = t.seats[i];
+    if (t.phase !== 'bet' || t.toAct !== i) return null;
+    const toCall = Math.max(0, t.curBet - s.bet);
+    const call = Math.min(toCall, s.stack);
+    const allTo = s.bet + s.stack;
+    let minTo = t.curBet + Math.max(t.minRaise, t.unit);
+    let maxTo = allTo;
+    if (t.game === 'seven') maxTo = Math.min(allTo, t.curBet + potTotal(t) + toCall);
+    const canRaise = s.stack > toCall && (t.game !== 'seven' || t.raises < 4) &&
+      inHand(t).some((k) => k !== i && !t.seats[k].allin);
+    if (minTo > maxTo) minTo = maxTo;
+    return { toCall, call, canCheck: toCall === 0, canRaise, minTo, maxTo, allTo, pot: potTotal(t) };
+  }
+
+  function act(t, i, a) {
+    const L = legal(t, i); if (!L) return false;
+    const s = t.seats[i];
+    let text = '';
+    if (a.type === 'fold') { s.folded = true; text = '다이'; }
+    else if (a.type === 'check') { if (!L.canCheck) return false; text = '체크'; }
+    else if (a.type === 'call') { if (L.canCheck) { text = '체크'; } else { put(t, s, L.call); text = s.allin ? '콜 (올인)' : '콜 ' + L.call; } }
+    else if (a.type === 'raise') {
+      if (!L.canRaise) return act(t, i, { type: L.canCheck ? 'check' : 'call' });
+      let to = Math.round(Number(a.to));
+      if (!(to > 0)) return false;
+      to = Math.max(Math.min(to, L.maxTo), Math.min(L.minTo, L.allTo));
+      if (to <= t.curBet) return act(t, i, { type: L.canCheck ? 'check' : 'call' });
+      const was = t.curBet;
+      put(t, s, to - s.bet);
+      if (to - was >= t.minRaise) t.minRaise = to - was;
+      t.curBet = Math.max(t.curBet, s.bet);
+      t.raises++;
+      for (const o of t.seats) if (o !== s && !o.folded && !o.allin) o.acted = false;
+      text = (was === 0 ? '베팅 ' : '레이즈 ') + s.bet + (s.allin ? ' (올인)' : '');
+    } else return false;
+    s.acted = true;
+    t.lastAct = { seat: i, text };
+    say(t, s.name + ' ' + text);
+    progress(t);
+    return true;
+  }
+
+  function progress(t) {
+    const live = inHand(t);
+    if (live.length === 1) { awardSingle(t, live[0]); return; }
+    const can = live.filter((i) => !t.seats[i].allin);
+    const done = can.every((i) => t.seats[i].acted && t.seats[i].bet === t.curBet) || needsNoAction(t);
+    if (!done) {
+      t.toAct = nextIdx(t, t.toAct, (s) => !s.folded && !s.allin && (!s.acted || s.bet < t.curBet));
+      return;
+    }
+    for (const s of t.seats) { s.bet = 0; s.acted = false; }
+    t.curBet = 0; t.minRaise = t.unit; t.raises = 0;
+    const last = t.game === 'holdem' ? 3 : 4;
+    const runOut = can.length <= 1;
+    if (t.street >= last) { showdown(t); return; }
+    if (runOut) {
+      while (t.street < last) dealStreet(t, true);
+      showdown(t); return;
+    }
+    dealStreet(t, false);
+  }
+
+  function dealStreet(t, silent) {
+    if (t.game === 'holdem') {
+      t.street++;
+      const n = t.street === 1 ? 3 : 1;
+      for (let k = 0; k < n; k++) t.board.push(draw(t, -1, true));
+      say(t, ['', '플랍', '턴', '리버'][t.street] + ': ' + t.board.map(cardName).join(' '));
+      if (silent) return;
+      t.phase = 'bet';
+      t.toAct = nextIdx(t, t.button, (s) => !s.folded && !s.allin);
+      if (needsNoAction(t)) progress(t);
+    } else {
+      if (silent) {
+        t.street++;
+        for (const i of inHand(t)) { const s = t.seats[i]; s.cards.push(draw(t, i, false)); s.up.push(t.street < 4); }
+        return;
+      }
+      startStreetSeven(t, t.street + 1);
+    }
+  }
+
+  function awardSingle(t, w) {
+    const pot = potTotal(t);
+    t.seats[w].stack += pot;
+    for (const s of t.seats) s.bet = 0;
+    t.results = { winners: [{ seat: w, amount: pot, hand: '' }], showdown: false, pot };
+    say(t, t.seats[w].name + ' 승리 (+' + pot + ')');
+    t.phase = 'done'; t.toAct = -1;
+  }
+
+  function showdown(t) {
+    const live = inHand(t);
+    const val = {};
+    for (const i of live) {
+      const s = t.seats[i]; s.shown = true;
+      val[i] = evalHand(t.game === 'holdem' ? s.cards.concat(t.board) : s.cards);
+    }
+    const levels = [...new Set(live.map((i) => t.seats[i].contrib))].sort((a, b) => a - b);
+    const pots = []; let prev = 0;
+    for (const L of levels) {
+      let amt = 0;
+      for (const s of t.seats) amt += Math.max(0, Math.min(s.contrib, L) - prev);
+      pots.push({ amt, elig: live.filter((i) => t.seats[i].contrib >= L) });
+      prev = L;
+    }
+    const total = potTotal(t), assigned = pots.reduce((a, p) => a + p.amt, 0);
+    if (total > assigned && pots.length) pots[pots.length - 1].amt += total - assigned;
+    const won = {};
+    for (const p of pots) {
+      if (!p.amt) continue;
+      const best = Math.max(...p.elig.map((i) => val[i]));
+      const ws = p.elig.filter((i) => val[i] === best);
+      const share = Math.floor(p.amt / ws.length);
+      let rem = p.amt - share * ws.length;
+      const order = ws.slice().sort((a, b) => ((a - t.button + 64) % t.seats.length) - ((b - t.button + 64) % t.seats.length));
+      for (const w of order) { const g = share + (rem > 0 ? 1 : 0); if (rem > 0) rem--; won[w] = (won[w] || 0) + g; }
+    }
+    const winners = [];
+    for (const w in won) { t.seats[w].stack += won[w]; winners.push({ seat: +w, amount: won[w], hand: handName(val[w]) }); }
+    t.results = { winners, showdown: true, pot: total, hands: Object.fromEntries(live.map((i) => [i, handName(val[i])])) };
+    for (const w of winners) say(t, t.seats[w.seat].name + ' 승리 · ' + w.hand + ' (+' + w.amount + ')');
+    for (const s of t.seats) s.bet = 0;
+    t.phase = 'done'; t.toAct = -1;
+  }
+
+  // ── 포커 AI ──
+  function equity(t, i, iters = 220) {
+    const me = t.seats[i];
+    const live = inHand(t).filter((k) => k !== i);
+    if (!live.length) return 1;
+    const known = new Set(me.cards.concat(t.board));
+    for (const k of live) t.seats[k].cards.forEach((c, j) => { if (t.seats[k].up[j]) known.add(c); });
+    for (const s of t.seats) if (s.folded) s.cards.forEach((c, j) => { if (s.up[j]) known.add(c); });
+    const pool = newDeck().filter((c) => !known.has(c));
+    let win = 0;
+    for (let it = 0; it < iters; it++) {
+      const p = shuffle(pool.slice(), t.r); let pi = 0;
+      let mine, best = -1, myV;
+      if (t.game === 'holdem') {
+        const board = t.board.slice(); while (board.length < 5) board.push(p[pi++]);
+        myV = evalHand(me.cards.concat(board));
+        for (const k of live) { const v = evalHand([p[pi++], p[pi++]].concat(board)); if (v > best) best = v; }
+      } else {
+        mine = me.cards.slice(); while (mine.length < 7) mine.push(p[pi++]);
+        myV = evalHand(mine);
+        for (const k of live) {
+          const s = t.seats[k]; const hand = s.cards.filter((_, j) => s.up[j]);
+          while (hand.length < 7) hand.push(p[pi++]);
+          const v = evalHand(hand); if (v > best) best = v;
+        }
+      }
+      if (myV > best) win += 1; else if (myV === best) win += 0.5;
+    }
+    return win / iters;
+  }
+
+  function aiAct(t, i) {
+    const s = t.seats[i], L = legal(t, i); if (!L) return false;
+    const P = PERSONA[s.persona] || PERSONA.calc;
+    const r = t.r();
+    if (s.drunk > 0) {
+      if (r < 0.3 && L.canRaise) return act(t, i, { type: 'raise', to: L.minTo + Math.floor(t.r() * (L.maxTo - L.minTo) * 0.6) });
+      if (r < 0.8) return act(t, i, { type: L.canCheck ? 'check' : 'call' });
+      return act(t, i, { type: L.canCheck ? 'check' : 'fold' });
+    }
+    const opp = inHand(t).length - 1;
+    const eq = equity(t, i);
+    const rel = eq * (opp + 1);
+    const pot = L.pot;
+    const sizeTo = (mult) => t.curBet + Math.max(L.minTo - t.curBet, Math.round(pot * mult * (0.8 + t.r() * 0.4)));
+    if (L.canCheck) {
+      if (L.canRaise && (rel > P.bet || (r < P.bluff && rel > 0.6))) return act(t, i, { type: 'raise', to: sizeTo(P.size) });
+      return act(t, i, { type: 'check' });
+    }
+    const odds = L.toCall / (pot + L.toCall);
+    if (L.canRaise && rel > P.raise && t.r() < P.aggr) return act(t, i, { type: 'raise', to: sizeTo(P.size + 0.2) });
+    if (eq >= odds * P.callMul - P.loose || (r < P.bluff * 0.5 && L.toCall < pot * 0.5)) return act(t, i, { type: 'call' });
+    return act(t, i, { type: 'fold' });
+  }
+
+  // 남에게 보여줄 판 상태 (숨은 카드는 -1)
+  function viewPoker(t) {
+    return {
+      kind: 'poker', game: t.game, sb: t.sb, bb: t.bb, ante: t.ante, unit: t.unit, button: t.button, board: t.board.slice(), street: t.street,
+      phase: t.phase, toAct: t.toAct, curBet: t.curBet, minRaise: t.minRaise, raises: t.raises, handNo: t.handNo, pot: potTotal(t),
+      lastAct: t.lastAct, log: t.log.slice(-8), results: t.results,
+      seats: t.seats.map((s) => ({
+        id: s.id, name: s.name, kind: s.kind, persona: s.persona, stack: s.stack, bet: s.bet, contrib: s.contrib, folded: s.folded,
+        allin: s.allin, chosen: s.chosen, away: s.away, out: s.out, n: s.cards.length, up: s.up.slice(),
+        cards: s.cards.map((c, k) => (s.shown || s.up[k]) ? c : -1)
+      }))
+    };
+  }
+
+  // ── 블랙잭 ──
+  function bjValue(cards) {
+    let total = 0, aces = 0;
+    for (const c of cards) { const r = rankOf(c); if (r === 12) { aces++; total += 11; } else total += r >= 8 ? 10 : r + 2; }
+    while (total > 21 && aces) { total -= 10; aces--; }
+    return { total, soft: aces > 0 };
+  }
+  const isBJ = (cards) => cards.length === 2 && bjValue(cards).total === 21;
+  const hiLo = (c) => { const r = rankOf(c); return r <= 4 ? 1 : r >= 8 ? -1 : 0; };
+
+  function makeBJ(o) {
+    const t = {
+      kind: 'bj', game: 'blackjack', decks: 6, shoe: [], cut: 0, running: 0, dealer: { cards: [], hide: true },
+      seats: o.seats.map((s) => Object.assign({ bet: 0, hands: [], away: false }, s)),
+      phase: 'bet', turn: null, minBet: o.minBet || 1, maxBet: o.maxBet || 100, rig: {}, log: [], r: o.r || Math.random, handNo: 0, results: null
+    };
+    bjShuffle(t); return t;
+  }
+  function bjShuffle(t) { t.shoe = shuffle(newDeck(t.decks), t.r); t.cut = Math.floor(52 * t.decks * 0.25); t.running = 0; }
+  function bjDraw(t, seat, handIdx, visible = true) {
+    let c = t.shoe.shift();
+    const L = t.rig.luck;
+    if (L && seat === L.seat && t.shoe.length && t.r() < L.p) {
+      const h = t.seats[seat].hands[handIdx];
+      if (h) {
+        const alt = t.shoe[0];
+        const sc = (x) => { const v = bjValue(h.cards.concat([x])).total; return v > 21 ? -1 : v; };
+        if (sc(alt) > sc(c)) { t.shoe[0] = c; c = alt; }
+      }
+    }
+    if (visible) t.running += hiLo(c);
+    return c;
+  }
+  function bjBet(t, i, amt) {
+    if (t.phase !== 'bet') return false;
+    const s = t.seats[i]; amt = Math.floor(amt);
+    if (!(amt >= t.minBet && amt <= t.maxBet && amt <= s.stack)) return false;
+    s.bet = amt; return true;
+  }
+  function bjDeal(t) {
+    const players = t.seats.map((s, i) => i).filter((i) => t.seats[i].bet > 0);
+    if (!players.length) return false;
+    if (t.shoe.length < t.cut) { bjShuffle(t); t.log.push('새 슈를 섞었다'); }
+    t.handNo++; t.results = null; t.log = []; t.dealer = { cards: [], hide: true };
+    for (const s of t.seats) s.hands = [];
+    for (const i of players) { const s = t.seats[i]; s.stack -= s.bet; s.hands = [{ cards: [], bet: s.bet, done: false, doubled: false, split: false }]; }
+    for (let k = 0; k < 2; k++) {
+      for (const i of players) t.seats[i].hands[0].cards.push(bjDraw(t, i, 0));
+      t.dealer.cards.push(bjDraw(t, -1, 0, k === 0));
+    }
+    t.phase = 'play';
+    for (const i of players) { const h = t.seats[i].hands[0]; if (isBJ(h.cards)) h.done = true; }
+    const up = t.dealer.cards[0];
+    if ((rankOf(up) === 12 || rankOf(up) >= 8) && isBJ(t.dealer.cards)) {
+      t.log.push('딜러 블랙잭'); bjFinish(t, true); return true;
+    }
+    t.turn = null; bjAdvance(t);
+    return true;
+  }
+  function bjAdvance(t) {
+    for (let i = 0; i < t.seats.length; i++) {
+      const hs = t.seats[i].hands;
+      for (let h = 0; h < hs.length; h++) if (!hs[h].done) { t.turn = { seat: i, hand: h }; return; }
+    }
+    t.turn = null; bjDealer(t);
+  }
+  function bjLegal(t, i) {
+    if (t.phase !== 'play' || !t.turn || t.turn.seat !== i) return null;
+    const s = t.seats[i], h = s.hands[t.turn.hand];
+    const two = h.cards.length === 2;
+    return {
+      hit: true, stand: true,
+      double: two && s.stack >= h.bet,
+      split: two && s.hands.length === 1 && rankOf(h.cards[0]) === rankOf(h.cards[1]) && s.stack >= h.bet
+    };
+  }
+  function bjAct(t, i, type) {
+    const L = bjLegal(t, i); if (!L || !L[type]) return false;
+    const s = t.seats[i], hi = t.turn.hand, h = s.hands[hi];
+    if (type === 'hit') {
+      h.cards.push(bjDraw(t, i, hi));
+      const v = bjValue(h.cards).total; if (v >= 21) h.done = true;
+    } else if (type === 'stand') h.done = true;
+    else if (type === 'double') {
+      s.stack -= h.bet; h.bet *= 2; h.doubled = true; h.cards.push(bjDraw(t, i, hi)); h.done = true;
+    } else if (type === 'split') {
+      s.stack -= h.bet;
+      const c2 = h.cards.pop();
+      const h2 = { cards: [c2], bet: h.bet, done: false, doubled: false, split: true };
+      h.split = true; s.hands.push(h2);
+      h.cards.push(bjDraw(t, i, 0)); h2.cards.push(bjDraw(t, i, 1));
+      if (rankOf(c2) === 12) { h.done = true; h2.done = true; }
+      for (const x of s.hands) if (bjValue(x.cards).total === 21) x.done = true;
+    }
+    t.log.push(s.name + ' ' + { hit: '히트', stand: '스탠드', double: '더블', split: '스플릿' }[type]);
+    bjAdvance(t);
+    return true;
+  }
+  function bjDealer(t) {
+    const d = t.dealer; d.hide = false; t.running += hiLo(d.cards[1]);
+    const anyLive = t.seats.some((s) => s.hands.some((h) => bjValue(h.cards).total <= 21 && !(isBJ(h.cards) && !h.split)));
+    if (anyLive) {
+      while (bjValue(d.cards).total < 17) d.cards.push(bjDraw(t, -1, 0));
+      if (t.rig.forceExtra && bjValue(d.cards).total <= 21) { d.cards.push(bjDraw(t, -1, 0)); t.log.push('딜러가 떨리는 손으로 한 장 더 뽑았다'); }
+    }
+    bjFinish(t, false);
+  }
+  function bjFinish(t, dealerBJ) {
+    const d = t.dealer; d.hide = false;
+    if (dealerBJ) t.running += hiLo(d.cards[1]);
+    const dv = bjValue(d.cards).total, dBJ = isBJ(d.cards);
+    const res = [];
+    t.seats.forEach((s, i) => {
+      if (!s.hands.length) return;
+      let net = 0; const parts = [];
+      for (const h of s.hands) {
+        const v = bjValue(h.cards).total, nat = isBJ(h.cards) && !h.split;
+        let pay = 0, tag;
+        if (dBJ) { if (nat) { pay = h.bet; tag = '푸시'; } else { pay = 0; tag = '패'; } }
+        else if (v > 21) { tag = '버스트'; }
+        else if (nat) { pay = h.bet + Math.floor(h.bet * 1.5); tag = '블랙잭'; }
+        else if (dv > 21 || v > dv) { pay = h.bet * 2; tag = '승'; }
+        else if (v === dv) { pay = h.bet; tag = '푸시'; }
+        else tag = '패';
+        s.stack += pay; net += pay - h.bet; parts.push(tag);
+      }
+      res.push({ seat: i, net, tags: parts });
+      s.bet = 0;
+    });
+    t.results = { dealer: dv, dealerBJ: dBJ, res };
+    t.phase = 'done'; t.turn = null;
+  }
+  function viewBJ(t) {
+    return {
+      kind: 'bj', game: 'blackjack', phase: t.phase, turn: t.turn, minBet: t.minBet, maxBet: t.maxBet, handNo: t.handNo, results: t.results,
+      log: t.log.slice(-6), shoeLeft: t.shoe.length,
+      dealer: { cards: t.dealer.cards.map((c, k) => (t.dealer.hide && k === 1) ? -1 : c), hide: t.dealer.hide },
+      seats: t.seats.map((s) => ({ id: s.id, name: s.name, kind: s.kind, stack: s.stack, bet: s.bet, away: s.away, hands: s.hands.map((h) => ({ cards: h.cards.slice(), bet: h.bet, done: h.done, doubled: h.doubled })) }))
+    };
+  }
+  // 블랙잭 AI: 기본 전략 요약
+  function bjAI(t, i) {
+    const L = bjLegal(t, i); if (!L) return false;
+    const h = t.seats[i].hands[t.turn.hand];
+    const { total, soft } = bjValue(h.cards);
+    const up = rankOf(t.dealer.cards[0]); const dv = up === 12 ? 11 : up >= 8 ? 10 : up + 2;
+    if (L.split) { const r = rankOf(h.cards[0]); if (r === 12 || r === 6) return bjAct(t, i, 'split'); }
+    if (L.double && !soft && (total === 11 || (total === 10 && dv < 10))) return bjAct(t, i, 'double');
+    if (soft) return bjAct(t, i, total >= 19 || (total === 18 && dv < 9) ? 'stand' : 'hit');
+    if (total >= 17) return bjAct(t, i, 'stand');
+    if (total >= 13 && dv <= 6) return bjAct(t, i, 'stand');
+    if (total === 12 && dv >= 4 && dv <= 6) return bjAct(t, i, 'stand');
+    return bjAct(t, i, 'hit');
+  }
+
+  return {
+    mulberry, shuffle, RK, SU, SUIT_NAME, rankOf, suitOf, cardName, parse, newDeck, evalHand, handName, CAT,
+    PERSONA, makePoker, newHand, choose, aiChoose, legal, act, aiAct, equity, potTotal, inHand, viewPoker, draw,
+    bjValue, isBJ, makeBJ, bjBet, bjDeal, bjLegal, bjAct, bjAI, viewBJ, bjShuffle, bjAdvance, hiLo
+  };
+})();
+if (typeof module !== 'undefined') module.exports = Cas;
+</script>
+<script>
+/* ===== 벨벳 카지노 · 온라인 저장 (Supabase) =====
+   다운받은 파일로 열어도 아이디·비밀번호로 로그인해서 같은 지갑을 쓰게 해 준다.
+   공개 키는 웹페이지에 들어가도 되는 키이고, 지갑은 "자기 것만 읽고 쓰기" 규칙으로 보호된다. */
+const VelvetOnline = (() => {
+  const URL_ = 'https://omofqvclwetstbuoumzg.supabase.co';
+  const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tb2ZxdmNsd2V0c3RidW91bXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NTcxMTYsImV4cCI6MjEwODEzMzExNn0.aiwislXwkjbssNwxEvTIFQf3oi4LgugqZnUuFzq4xfA';
+  const LS = 'velvet-session-v1';
+  const DOMAIN = 'player.velvet-casino.com';   // 아이디를 로그인용 주소 모양으로 바꿀 때 쓰는 꼬리
+  let session = null;   // { access_token, refresh_token, expires_at, user_id, id }
+
+  const idToEmail = (id) => id.toLowerCase() + '@' + DOMAIN;
+  function saveSession() { try { localStorage.setItem(LS, JSON.stringify(session)); } catch (e) { /* 저장 불가 */ } }
+  function loadSession() { try { session = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { session = null; } return session; }
+  function clearSession() { session = null; try { localStorage.removeItem(LS); } catch (e) { /* 무시 */ } }
+
+  async function call(path, opt = {}) {
+    const headers = Object.assign({ apikey: KEY, 'Content-Type': 'application/json' }, opt.headers || {});
+    const res = await fetch(URL_ + path, Object.assign({}, opt, { headers }));
+    let body = null;
+    try { body = await res.json(); } catch (e) { body = null; }
+    if (!res.ok) { const err = new Error((body && (body.msg || body.error_description || body.message || body.error)) || ('HTTP ' + res.status)); err.status = res.status; err.body = body; throw err; }
+    return body;
+  }
+  function take(b, id) {
+    session = { access_token: b.access_token, refresh_token: b.refresh_token, expires_at: Date.now() + (b.expires_in || 3600) * 1000, user_id: b.user && b.user.id, id };
+    saveSession();
+  }
+  function korean(e) {
+    const m = String(e.message || '');
+    if (/invalid login credentials/i.test(m)) return '아이디나 비밀번호가 맞지 않아요.';
+    if (/already registered|already exists/i.test(m)) return '이미 있는 아이디예요. 다른 아이디를 써 주세요.';
+    if (/password.*(at least|short|6)/i.test(m)) return '비밀번호는 6자 이상이어야 해요.';
+    if (/email not confirmed/i.test(m)) return '가입 확인 설정이 아직 켜져 있어요. 관리자(나)에게 Supabase 설정을 확인해 달라고 하세요.';
+    if (/rate limit|too many/i.test(m)) return '시도가 너무 많아요. 잠시 뒤 다시 해 주세요.';
+    if (/failed to fetch|network/i.test(m)) return '서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.';
+    return '문제가 생겼어요: ' + m;
+  }
+  async function signIn(id, pw) {
+    const b = await call('/auth/v1/token?grant_type=password', { method: 'POST', body: JSON.stringify({ email: idToEmail(id), password: pw }) });
+    take(b, id);
+  }
+  async function signUp(id, pw) {
+    const b = await call('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email: idToEmail(id), password: pw }) });
+    if (!b || !b.access_token) throw new Error('email not confirmed');
+    take(b, id);
+  }
+  async function token() {
+    if (!session) throw new Error('로그인이 필요해요');
+    if (Date.now() > session.expires_at - 60000) {
+      const b = await call('/auth/v1/token?grant_type=refresh_token', { method: 'POST', body: JSON.stringify({ refresh_token: session.refresh_token }) });
+      take(b, session.id);
+    }
+    return session.access_token;
+  }
+  async function rest(path, opt = {}) {
+    const t = await token();
+    return call('/rest/v1/' + path, Object.assign({}, opt, { headers: Object.assign({ Authorization: 'Bearer ' + t }, opt.headers || {}) }));
+  }
+
+  // 지갑 읽기. 없으면 null. 읽으면서 이 화면(sid)이 주인이라고 표시한다.
+  async function loadWallet(sid) {
+    const uid = session.user_id;
+    const rows = await rest('wallets?user_id=eq.' + uid + '&select=data', { method: 'GET' });
+    if (rows && rows.length) {
+      await rest('wallets?user_id=eq.' + uid, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ sid, updated_at: new Date().toISOString() }) });
+      return rows[0].data;
+    }
+    return null;
+  }
+  async function createWallet(data, sid) {
+    await rest('wallets', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ user_id: session.user_id, data, sid }) });
+  }
+  // 저장. 다른 기기가 주인 자리를 가져갔으면 false
+  async function saveWallet(data, sid) {
+    const rows = await rest('wallets?user_id=eq.' + session.user_id + '&sid=eq.' + encodeURIComponent(sid), {
+      method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ data, updated_at: new Date().toISOString() })
+    });
+    return Array.isArray(rows) && rows.length > 0;
+  }
+
+  return { loadSession, clearSession, signIn, signUp, loadWallet, createWallet, saveWallet, korean, get id() { return session && session.id; } };
+})();
+window.VelvetOnline = VelvetOnline;
+</script>
+<script>
+/* ===== 벨벳 카지노 · 화면과 진행 ===== */
+const App = (() => {
+  const C = Cas;
+  const $ = (s, el = document) => el.querySelector(s);
+  function h(tag, attrs, ...kids) {
+    const e = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      const v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k === 'svg') e.innerHTML = v;            // 코드 안의 고정 아이콘만
+      else if (k.startsWith('on')) e[k] = v;
+      else if (k === 'style') e.style.cssText = v;
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    for (const c of kids.flat(3)) { if (c == null || c === false) continue; e.append(c.nodeType ? c : document.createTextNode(String(c))); }
+    return e;
+  }
+  const fmt = (n) => Math.round(n).toLocaleString('ko-KR');
+  const rand = (a) => a[Math.floor(Math.random() * a.length)];
+
+  // ── 아이콘 (고정 SVG) ──
+  const IP = {
+    pistol: '<path d="M3 9h13l2-2h3v4h-6l-1 2h-3l-1 4H6l1-4H3z"/>',
+    lens: '<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 21 21"/>',
+    cigarette: '<rect x="2" y="13" width="17" height="4" rx="1"/><path d="M15 13v4M21 13v4M18 10c0-2 2-2 2-4M21 10c0-2 1-2 1-4"/>',
+    sleeve: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9.5 15 12 8l2.5 7M10.4 12.6h3.2"/>',
+    mirror: '<ellipse cx="12" cy="10" rx="6" ry="7"/><path d="M12 17v4M9 21h6M9.5 7.5l2.5-2"/>',
+    notebook: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12 8h4M12 12h4"/>',
+    clover: '<circle cx="9" cy="9" r="3"/><circle cx="15" cy="9" r="3"/><circle cx="9" cy="15" r="3"/><circle cx="15" cy="15" r="3"/><path d="M13 13l4 8"/>',
+    slot: '<rect x="3" y="5" width="16" height="14" rx="2"/><path d="M8 5v14M14 5v14M19 9h2v6"/><circle cx="21" cy="7.5" r="1"/>',
+    insurance: '<path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+    whiskey: '<path d="M10 2h4v4l2 3v12a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3z"/><path d="M8 13h8"/>',
+    vip: '<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M6 10l2 5 2-5M12 10v5M15.5 15v-5h2a1.5 1.5 0 0 1 0 3h-2"/>',
+    vault: '<rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="12" cy="11.5" r="3.5"/><path d="M12 8v1M6 19v2M18 19v2"/>',
+    regular: '<circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/>'
+  };
+  const icon = (k, size = 22) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IP[k] || ''}</svg>`;
+
+  // ── 게임 · 테이블 등급 ──
+  const GAMES = {
+    holdem: { name: '텍사스 홀덤', seats: 6, rules: '비공개 2장과 공용 5장으로 가장 좋은 다섯 장을 만든다. 블라인드가 돌고 베팅은 네 번.' },
+    seven: { name: '세븐 포커', seats: 5, rules: '4장 받아 1장 버리고 1장 공개. 4구부터 히든까지 베팅 네 번. 상대의 보이는 패를 읽는 게임.' },
+    blackjack: { name: '블랙잭', seats: 1, rules: '21을 넘지 않고 딜러보다 높게. 블랙잭은 1.5배, 딜러는 17에서 멈춘다.' }
+  };
+  const TIERS = {
+    holdem: [
+      { id: 'low', name: '초보', sb: 1, bb: 2, min: 40, max: 400, info: '블라인드 1/2 · 바이인 40~400' },
+      { id: 'mid', name: '일반', sb: 5, bb: 10, min: 200, max: 2000, info: '블라인드 5/10 · 바이인 200~2,000' },
+      { id: 'high', name: '하이롤러', sb: 25, bb: 50, min: 1000, max: 10000, vip: true, info: '블라인드 25/50 · 바이인 1,000~ · VIP 전용' }
+    ],
+    seven: [
+      { id: 'low', name: '초보', ante: 1, unit: 2, min: 40, max: 400, info: '앤티 1 · 최소 베팅 2 · 바이인 40~400' },
+      { id: 'mid', name: '일반', ante: 5, unit: 10, min: 200, max: 2000, info: '앤티 5 · 최소 베팅 10 · 바이인 200~2,000' },
+      { id: 'high', name: '하이롤러', ante: 25, unit: 50, min: 1000, max: 10000, vip: true, info: '앤티 25 · 최소 베팅 50 · VIP 전용' }
+    ],
+    blackjack: [
+      { id: 'low', name: '초보', minBet: 1, maxBet: 20, chips: [1, 5, 10], info: '베팅 1~20' },
+      { id: 'mid', name: '일반', minBet: 10, maxBet: 200, chips: [10, 25, 50, 100], info: '베팅 10~200' },
+      { id: 'high', name: '하이롤러', minBet: 50, maxBet: 1000, chips: [50, 100, 250, 500], vip: true, info: '베팅 50~1,000 · VIP 전용' }
+    ]
+  };
+  const tierOf = (g, id) => TIERS[g].find((t) => t.id === id) || TIERS[g][0];
+
+  // ── 아이템 ──
+  const ITEMS = {
+    pistol: { name: '권총', kind: 'cheat', price: 150, sus: 35, when: 'hand', games: ['holdem', 'seven', 'blackjack'],
+      desc: { holdem: '딜러를 협박해 다음 공용 카드 두 장을 고른 무늬로 깔게 한다.', seven: '내가 받을 다음 카드 두 장을 고른 무늬로 받는다.', blackjack: '딜러가 멈출 때 한 장을 더 뽑게 만든다.' } },
+    cigarette: { name: '담배', kind: 'cheat', price: 70, sus: 20, when: 'hand', games: ['holdem', 'seven', 'blackjack'], desc: '연기로 시선을 가리고 내 카드 한 장을 바꿔치기한다.' },
+    sleeve: { name: '소매 속 에이스', kind: 'cheat', price: 110, sus: 30, when: 'hand', games: ['holdem', 'seven', 'blackjack'], desc: '내 카드 한 장을 에이스로 바꾼다. 30% 확률로 그 자리에서 들킨다.' },
+    lens: { name: '돋보기', kind: 'info', price: 40, when: 'hand', games: ['holdem', 'seven', 'blackjack'],
+      desc: { holdem: '상대 한 명의 숨은 카드 한 장을 엿본다.', seven: '상대 한 명의 숨은 카드 한 장을 엿본다.', blackjack: '딜러가 엎어 둔 카드를 본다.' } },
+    mirror: { name: '거울 조각', kind: 'info', price: 30, when: 'hand', games: ['holdem', 'seven', 'blackjack'], desc: '다음에 나올 카드 한 장을 미리 본다.' },
+    notebook: { name: '카운팅 수첩', kind: 'info', price: 60, when: 'prep', games: ['blackjack'], desc: '5판 동안 남은 슈에 큰 카드가 얼마나 남았는지 알려 준다.' },
+    clover: { name: '네잎클로버', kind: 'luck', price: 90, when: 'prep', games: ['holdem', 'seven', 'blackjack'], desc: '4판 동안 카드를 받을 때 35% 확률로 두 장 중 나은 쪽을 받는다.' },
+    slot: { name: '슬롯 코인', kind: 'luck', price: 40, when: 'prep', games: ['holdem', 'seven', 'blackjack'], desc: '다음 판 득실이 두 배. 이기면 두 배로 벌고, 지면 두 배로 잃는다.' },
+    insurance: { name: '보험 증서', kind: 'luck', price: 50, when: 'prep', games: ['holdem', 'seven', 'blackjack'], desc: '다음 판에 지면 잃은 칩의 절반을 돌려받는다.' },
+    whiskey: { name: '위스키 한 병', kind: 'luck', price: 60, when: 'any', games: ['holdem', 'seven'], desc: '상대 한 명에게 술을 보내 3판 동안 엉뚱하게 베팅하게 만든다.' }
+  };
+  const KIND = { cheat: '속임수 · 의심 상승', info: '정보', luck: '운' };
+  const PERMS = {
+    vip: { name: 'VIP 카드', price: 2000, desc: '하이롤러 테이블 입장. 상점 10% 할인.' },
+    vault: { name: '금고', price: 800, desc: '칩을 맡겨 두면 테이블에서 잃지 않는다. 로비에서 언제든 꺼낼 수 있다.' },
+    regular: { name: '단골 배지', price: 1200, desc: '의심이 매일 두 배로 빨리 식고, 소매 속 에이스가 들킬 확률이 절반이 된다.' }
+  };
+  const descOf = (id, g) => { const d = ITEMS[id].desc; return typeof d === 'string' ? d : (d[g] || d.holdem); };
+
+  // ── AI 손님 ──
+  const ROSTER = [
+    ['마담 로즈', 'bluffer'], ['닥터 한', 'calc'], ['실버 김', 'rock'], ['블랙타이 정', 'station'], ['베로니카', 'bluffer'],
+    ['선장 오', 'station'], ['미스터 J', 'calc'], ['백작 부인', 'rock'], ['레드', 'bluffer'], ['교수 박', 'calc'], ['노신사 윤', 'rock'], ['쌍둥이 류', 'station']
+  ];
+  const LINES = {
+    rock: { raise: ['좋은 패가 왔군요.', '이번엔 갑니다.'], call: ['보죠.', '따라가겠습니다.'], check: ['…'], fold: ['이번엔 쉬죠.', '지켜보겠습니다.'] },
+    bluffer: { raise: ['인생은 한 방이죠.', '겁나면 접으시든가.', '올려 볼까요?'], call: ['재밌네요.'], check: ['흐음.'], fold: ['오늘은 봐드리죠.'] },
+    station: { raise: ['어쩌다 보니.'], call: ['궁금하니까 볼게요.', '끝까지 가 봐야죠.'], check: ['네.'], fold: ['아, 이건 진짜 아니다.'] },
+    calc: { raise: ['기대값이 플러스입니다.'], call: ['확률상 콜입니다.'], check: ['체크.'], fold: ['수학적으로 다이.'] }
+  };
+
+  // ── 지갑 저장 ──
+  const SID = Math.random().toString(36).slice(2, 10);
+  const W = { data: null, mode: 'local', ref: null, writing: false, dirty: false, db: null, user: null, uid: null, unsub: null, frozen: false };
+  const LS = 'velvet-wallet-v1';
+  function dayKey(t = Date.now()) {
+    const d = new Date(t - 6 * 3600e3);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function newWallet() {
+    return { v: 1, chips: 100, vault: 0, items: {}, perm: {}, sus: 0, banDay: null, day: dayKey(), table: null, fx: { clover: 0, notebook: 0 }, stats: { hands: 0, best: 100 } };
+  }
+  function normalize(w) {
+    const n = newWallet();
+    w = Object.assign(n, w || {});
+    w.items = Object.assign({}, w.items); w.perm = Object.assign({}, w.perm); w.fx = Object.assign({ clover: 0, notebook: 0 }, w.fx); w.stats = Object.assign({ hands: 0, best: 100 }, w.stats);
+    for (const k of ['chips', 'vault', 'sus']) w[k] = Math.max(0, Math.floor(Number(w[k]) || 0));
+    return w;
+  }
+  async function loadWallet() {
+    if (window.VelvetOnline) {
+      const raw = await VelvetOnline.loadWallet(SID);
+      W.data = normalize(raw);
+      W.mode = 'online';
+      if (!raw) await VelvetOnline.createWallet(JSON.parse(JSON.stringify(W.data)), SID);
+      return;
+    }
+    try {
+      const use = window.claude && window.claude.use ? window.claude.use.bind(window.claude) : null;
+      if (use) {
+        [W.db, W.user] = await Promise.all([use('db'), use('user')]);
+        W.uid = W.user ? await W.user.id() : null;
+      }
+    } catch (e) { W.db = null; }
+    if (W.db && W.uid) {
+      try {
+        W.ref = W.db.doc('data/users/' + W.uid + '/wallet');
+        const snap = await W.ref.get();
+        W.data = normalize(snap.exists ? JSON.parse(JSON.stringify(snap.data())) : null);
+        W.mode = 'account';
+        W.unsub = W.ref.onSnapshot((s) => {
+          if (!s.exists || s.metadata.hasPendingWrites) return;
+          const d = s.data();
+          if (d.sid && d.sid !== SID && !W.frozen) otherDevice();
+        }, () => {});
+        return;
+      } catch (e) { W.mode = 'local'; }
+    }
+    let raw = null;
+    try { raw = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { raw = null; }
+    W.data = normalize(raw); W.mode = 'local';
+  }
+  function save() { if (W.frozen) return; W.dirty = true; flush(); renderTop(); }
+  async function flush() {
+    if (W.writing) return;
+    W.writing = true;
+    while (W.dirty) {
+      W.dirty = false;
+      const body = JSON.parse(JSON.stringify(Object.assign({}, W.data, { sid: SID, at: Date.now() })));
+      try {
+        if (W.mode === 'online') {
+          const ok = await VelvetOnline.saveWallet(body, SID);
+          if (!ok) { W.writing = false; otherDevice(); return; }
+        } else if (W.mode === 'account') await W.ref.set(body);
+        else localStorage.setItem(LS, JSON.stringify(body));
+      } catch (e) {
+        if (W.mode === 'online') { toast('서버에 저장하지 못했어요. 잠시 뒤 다시 저장할게요.'); W.dirty = true; await new Promise((r) => setTimeout(r, 5000)); continue; }
+        try { localStorage.setItem(LS, JSON.stringify(body)); } catch (e2) { /* 저장 불가 */ }
+        if (W.mode === 'account') { toast('계정에 저장하지 못했어요. 잠시 뒤 다시 저장할게요.'); W.dirty = true; await new Promise((r) => setTimeout(r, 4000)); }
+      }
+    }
+    W.writing = false;
+  }
+  function otherDevice() {
+    W.frozen = true;
+    stopTimers();
+    dialog('다른 곳에서 입장했어요', [
+      h('p', { class: 'sub', text: '같은 계정으로 다른 기기나 창에서 카지노에 들어왔어요. 칩이 엇갈리지 않도록 이 화면은 멈췄어요.' }),
+      h('div', { class: 'row' }, h('button', { class: 'btn gold', text: '여기서 계속하기', onclick: () => location.reload() }))
+    ], false);
+  }
+
+  // 하루가 바뀌면: 남은 테이블 칩 돌려주기, 아침 지급, 의심 식히기, 출입 금지 풀기
+  function morning() {
+    const w = W.data, today = dayKey(), msgs = [];
+    if (w.table) { w.chips += w.table.stack; msgs.push('지난번 테이블에 남아 있던 ' + fmt(w.table.stack) + '칩을 돌려받았어요.'); w.table = null; }
+    if (w.day < today) {
+      const decay = w.perm.regular ? 60 : 30;
+      if (w.sus > 0) { w.sus = Math.max(0, w.sus - decay); msgs.push('하룻밤 사이 의심이 조금 식었어요.'); }
+      const total = w.chips + w.vault;
+      if (total <= 100) { const add = 100 - total; if (add > 0) { w.chips += add; msgs.push('아침 지급: 칩이 100이 되도록 ' + fmt(add) + '칩을 받았어요.'); } }
+      w.day = today;
+    }
+    return msgs;
+  }
+  const banned = () => W.data.banDay === dayKey();
+
+  // ── 공통 UI ──
+  let toastT = 0;
+  function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 3200); }
+  function dialog(title, body, closable = true) {
+    const box = $('#ovBox'); box.innerHTML = '';
+    box.append(h('h2', { text: title }), ...body);
+    if (closable) box.append(h('div', { class: 'row' }, h('button', { class: 'btn small', text: '닫기', onclick: closeDialog })));
+    $('#ov').hidden = false;
+    const f = box.querySelector('button, input'); if (f) f.focus();
+  }
+  function closeDialog() { $('#ov').hidden = true; }
+  function show(id) {
+    for (const s of ['scrLobby', 'scrTable', 'scrShop', 'scrFriends']) $('#' + s).hidden = s !== id;
+    $('#toLobby').hidden = id === 'scrLobby' || id === 'scrTable';
+    window.scrollTo(0, 0);
+  }
+  function renderTop() {
+    const w = W.data; if (!w) return;
+    $('#wChips').textContent = fmt(w.chips);
+    $('#wVaultBox').hidden = !w.perm.vault; $('#wVault').textContent = fmt(w.vault);
+    $('#wSus').style.width = Math.min(100, w.sus) + '%'; $('#wSusN').textContent = w.sus;
+    $('#wSave').textContent = W.mode === 'online' ? '온라인 저장 · ' + (VelvetOnline.id || '') : W.mode === 'account' ? '계정에 저장' : '이 기기에 저장';
+    const lo = $('#wLogout'); if (lo) lo.hidden = W.mode !== 'online';
+  }
+
+  function cardEl(c, o = {}) {
+    if (c == null || c < 0) return h(o.btn ? 'button' : 'span', { class: 'card back' + (o.cls ? ' ' + o.cls : ''), 'aria-label': '뒤집힌 카드', onclick: o.onclick, type: o.btn ? 'button' : null });
+    const red = (c & 3) === 1 || (c & 3) === 2;
+    return h(o.btn ? 'button' : 'span', { class: 'card' + (red ? ' red' : '') + (o.cls ? ' ' + o.cls : ''), 'aria-label': C.SUIT_NAME[c & 3] + ' ' + C.RK[c >> 2], onclick: o.onclick, type: o.btn ? 'button' : null },
+      h('b', { text: C.RK[c >> 2] }), h('i', { text: C.SU[c & 3] }));
+  }
+
+  // ════════════════ 로비 ════════════════
+  const lobbySel = { holdem: 'low', seven: 'low', blackjack: 'low' };
+  function renderLobby() {
+    const w = W.data, el = $('#scrLobby'); el.innerHTML = '';
+    const ms = morning();
+    ms.forEach((m, k) => setTimeout(() => toast(m), k * 3400));
+    if (ms.length) save();
+    renderTop();
+    if (banned()) {
+      el.append(h('div', { class: 'lobby-head' }, h('h1', { text: '오늘은 출입 금지예요' }),
+        h('p', { class: 'sub', text: '경비원이 당신 얼굴을 기억하고 있어요. 내일 아침 6시가 지나면 다시 들어올 수 있어요.' })));
+      el.append(h('div', { class: 'side' }, shopPanel(), vaultPanel()));
+      return;
+    }
+    el.append(h('div', { class: 'lobby-head' }, h('h1', { text: '어느 테이블로 가시겠어요?' }),
+      h('p', { class: 'sub', text: '판이 끝나면 언제든 로비로 돌아올 수 있어요. 판 도중에 나가면 그 판은 포기한 것으로 처리돼요.' })));
+    const paths = h('div', { class: 'paths' });
+    for (const g of ['holdem', 'seven', 'blackjack']) paths.append(pathCard(g));
+    el.append(paths);
+    el.append(h('div', { class: 'side' }, shopPanel(), friendsPanel(), vaultPanel()));
+  }
+  function pathCard(g) {
+    const w = W.data, info = GAMES[g];
+    const fans = { holdem: [C.parse('AS'), C.parse('KS')], seven: [C.parse('7H'), C.parse('7D'), C.parse('7C')], blackjack: [C.parse('AH'), C.parse('KC')] };
+    const tiers = h('div', { class: 'tiers', role: 'group', 'aria-label': '테이블 등급' });
+    for (const t of TIERS[g]) {
+      const locked = t.vip && !w.perm.vip;
+      tiers.append(h('button', { class: 'tier', 'aria-pressed': lobbySel[g] === t.id ? 'true' : 'false', disabled: locked, title: locked ? 'VIP 카드가 필요해요' : null, text: t.name + (locked ? ' 🔒' : ''),
+        onclick: () => { lobbySel[g] = t.id; renderLobby(); } }));
+    }
+    const T = tierOf(g, lobbySel[g]);
+    const need = g === 'blackjack' ? T.minBet : T.min;
+    const can = w.chips >= need;
+    const fan = h('div', { class: 'fan', 'aria-hidden': 'true' });
+    fans[g].forEach((c, k) => { const e = cardEl(c); e.style.transform = 'rotate(' + (k - (fans[g].length - 1) / 2) * 10 + 'deg)'; fan.append(e); });
+    return h('div', { class: 'path' + (g === 'blackjack' ? ' bj' : '') }, h('span', { class: 'arch' }), fan,
+      h('h2', { text: info.name }), h('p', { class: 'rules', text: info.rules }), tiers,
+      h('div', { class: 'tierinfo', text: T.info + (can ? '' : ' · 칩이 부족해요') }),
+      h('button', { class: 'btn gold', text: '앉기', disabled: !can, onclick: () => (g === 'blackjack' ? sitBJ(T) : askBuyin(g, T)) }));
+  }
+  function shopPanel() {
+    return h('div', { class: 'panel' }, h('h3', { text: '상점' }),
+      h('p', { class: 'note', text: '권총, 돋보기, 담배, 네잎클로버… 판을 뒤집을 물건들이 있어요. 속임수는 의심을 부르니 조심하세요.' }),
+      h('button', { class: 'btn', text: '상점 들어가기', onclick: renderShop }));
+  }
+  function friendsPanel() {
+    return h('div', { class: 'panel' }, h('h3', { text: '친구와 하기' }),
+      h('p', { class: 'note', text: '링크를 공유받은 친구와 같은 테이블에 앉아요. 친구 테이블은 따로 주는 테이블 칩으로 하고, 내 지갑 칩은 건드리지 않아요. 아이템은 쓸 수 없어요.' }),
+      h('button', { class: 'btn', text: '친구 테이블로', onclick: () => (window.Friends ? Friends.open() : toast('준비 중이에요.')) }));
+  }
+  function vaultPanel() {
+    const w = W.data;
+    if (!w.perm.vault) return h('div', { class: 'panel' }, h('h3', { text: '오늘의 장부' }),
+      h('p', { class: 'note', text: '지금까지 ' + fmt(w.stats.hands) + '판을 했어요. 가장 많이 가졌던 칩은 ' + fmt(w.stats.best) + '칩이에요.' }),
+      h('p', { class: 'note', text: '의심 ' + w.sus + '/100. 하룻밤 자고 나면 ' + (w.perm.regular ? 60 : 30) + '씩 식어요.' }));
+    const inp = h('input', { type: 'number', id: 'vaultAmt', min: '1', inputmode: 'numeric', placeholder: '금액', 'aria-label': '금고 금액' });
+    const move = (dir) => {
+      const n = Math.floor(Number(inp.value)); if (!(n > 0)) return toast('금액을 적어 주세요.');
+      if (dir > 0) { if (n > w.chips) return toast('가진 칩보다 많이 맡길 수 없어요.'); w.chips -= n; w.vault += n; }
+      else { if (n > w.vault) return toast('금고에 그만큼 없어요.'); w.vault -= n; w.chips += n; }
+      save(); renderLobby();
+    };
+    return h('div', { class: 'panel' }, h('h3', { text: '금고' }),
+      h('p', { class: 'note', text: '금고 안 칩은 테이블에서 잃지 않아요. 아침 지급은 지갑과 금고를 합쳐 100 이하일 때만 나와요.' }),
+      h('div', { class: 'stat', html: null }, '보관 중 ', h('b', { class: 'num', text: fmt(w.vault) })),
+      inp, h('div', { class: 'row' }, h('button', { class: 'btn small', text: '맡기기', onclick: () => move(1) }), h('button', { class: 'btn small', text: '꺼내기', onclick: () => move(-1) })));
+  }
+
+  // ════════════════ 상점 ════════════════
+  function priceOf(p) { return W.data.perm.vip ? Math.ceil(p * 0.9) : p; }
+  function renderShop() {
+    const w = W.data, el = $('#scrShop'); el.innerHTML = '';
+    el.append(h('div', { class: 'lobby-head' }, h('h1', { text: '상점' }), h('p', { class: 'sub', text: '아이템은 한 판에 하나만 쓸 수 있어요. 속임수 아이템은 쓸 때마다 의심이 오르고, 100이 되면 그날은 쫓겨나요.' + (w.perm.vip ? ' VIP 10% 할인 적용 중.' : '') })));
+    const grid = h('div', { class: 'shop-grid' });
+    for (const id in ITEMS) {
+      const it = ITEMS[id], p = priceOf(it.price);
+      grid.append(h('div', { class: 'ware' },
+        h('div', { class: 'head' }, h('span', { class: 'ico', svg: icon(id, 26) }), h('div', null, h('h3', { text: it.name }), h('div', { class: 'kind' + (it.kind === 'cheat' ? ' cheat' : ''), text: KIND[it.kind] + (it.sus ? ' +' + it.sus : '') }))),
+        h('p', { text: typeof it.desc === 'string' ? it.desc : Object.entries(it.desc).map(([g, d]) => GAMES[g].name + ': ' + d).join(' ') }),
+        h('p', { class: 'note', text: '쓸 수 있는 곳: ' + it.games.map((g) => GAMES[g].name).join(', ') + (it.when === 'prep' ? ' · 판 시작 전에 사용' : '') }),
+        h('div', { class: 'foot' }, h('span', { class: 'own', text: '가진 것 ' + (w.items[id] || 0) + '개' }),
+          h('button', { class: 'btn small gold', disabled: w.chips < p, onclick: () => buy(id, p) }, h('span', { class: 'chip-ico' }), ' ' + fmt(p)))));
+    }
+    el.append(h('h2', { text: '소모품', style: 'margin:18px 0 10px' }), grid);
+    const g2 = h('div', { class: 'shop-grid' });
+    for (const id in PERMS) {
+      const it = PERMS[id], p = priceOf(it.price), own = !!w.perm[id];
+      g2.append(h('div', { class: 'ware' },
+        h('div', { class: 'head' }, h('span', { class: 'ico', svg: icon(id, 26) }), h('div', null, h('h3', { text: it.name }), h('div', { class: 'kind', text: '영구' }))),
+        h('p', { text: it.desc }),
+        h('div', { class: 'foot' }, h('span', { class: 'own', text: own ? '보유 중' : '' }),
+          own ? h('span', { class: 'tag', text: 'OWNED' }) : h('button', { class: 'btn small gold', disabled: w.chips < p, onclick: () => buyPerm(id, p) }, h('span', { class: 'chip-ico' }), ' ' + fmt(p)))));
+    }
+    el.append(h('h2', { text: '영구 물품', style: 'margin:24px 0 10px' }), g2);
+    show('scrShop');
+  }
+  function buy(id, p) {
+    const w = W.data; if (w.chips < p) return;
+    w.chips -= p; w.items[id] = (w.items[id] || 0) + 1; save(); toast(ITEMS[id].name + '을(를) 샀어요.'); renderShop();
+  }
+  function buyPerm(id, p) {
+    const w = W.data; if (w.chips < p || w.perm[id]) return;
+    w.chips -= p; w.perm[id] = true; save(); toast(PERMS[id].name + '을(를) 손에 넣었어요.'); renderShop();
+  }
+
+  // ════════════════ 혼자 하는 포커 ════════════════
+  let S = null;            // 지금 앉은 테이블
+  function stopTimers() { if (S && S.timer) clearTimeout(S.timer); if (S && S.bubbleT) clearTimeout(S.bubbleT); }
+
+  function askBuyin(g, T) {
+    const w = W.data;
+    const max = Math.min(T.max, w.chips), def = Math.min(max, Math.max(T.min, (T.bb || T.unit) * 100));
+    const r = h('input', { type: 'range', min: String(T.min), max: String(max), step: String(T.bb || T.unit), value: String(def), id: 'buyinR', 'aria-label': '바이인' });
+    const out = h('b', { class: 'num', text: fmt(def) });
+    r.oninput = () => { out.textContent = fmt(r.value); };
+    dialog(GAMES[g].name + ' · ' + T.name, [
+      h('p', { class: 'sub', text: '테이블에 가지고 앉을 칩을 정하세요. 일어설 때 남은 칩은 지갑으로 돌아와요.' }),
+      h('div', { class: 'stat' }, '바이인 ', out), r,
+      h('div', { class: 'row' }, h('button', { class: 'btn gold', text: '앉기', onclick: () => { closeDialog(); sitPoker(g, T, Number(r.value)); } }))
+    ]);
+  }
+
+  function newAI(t, used, stack) {
+    const free = ROSTER.filter(([n]) => !used.includes(n));
+    const [name, persona] = rand(free.length ? free : ROSTER);
+    return { id: 'ai-' + Math.random().toString(36).slice(2, 7), name, kind: 'ai', persona, stack };
+  }
+
+  function sitPoker(g, T, buyin) {
+    const w = W.data;
+    buyin = Math.min(buyin, w.chips);
+    w.chips -= buyin; w.table = { game: g, tier: T.id, stack: buyin }; save();
+    const n = GAMES[g].seats, unit = T.bb || T.unit;
+    const seats = [{ id: 'me', name: '나', kind: 'human', stack: buyin }];
+    for (let k = 1; k < n; k++) seats.push(newAI(null, seats.map((s) => s.name), unit * 100));
+    const t = C.makePoker(g, { sb: T.sb, bb: T.bb, ante: T.ante || 0, unit, seats });
+    S = { mode: 'single', game: g, T, t, me: 0, usedFor: -1, peeks: [], pending: { slot: false, ins: false }, slot: false, ins: false,
+      handStart: buyin, bubble: null, sel: { discard: -1, open: -1 }, chooser: null, mirror: null, result: null, raiseTo: 0 };
+    show('scrTable');
+    startHand();
+  }
+
+  function startHand() {
+    const t = S.t, w = W.data;
+    if (W.frozen) return;
+    const unit = S.T.bb || S.T.unit;
+    t.seats.forEach((s, i) => {
+      if (s.kind === 'ai' && s.stack <= 0) {
+        const nu = newAI(null, t.seats.map((x) => x.name), unit * 100);
+        Object.assign(s, nu, { cards: [], up: [] });
+        toast(nu.name + '이(가) 빈자리에 앉았어요.');
+      }
+    });
+    const me = t.seats[0];
+    if (me.stack <= 0) { S.result = null; renderTable(); return; }
+    t.rig = {};
+    if (w.fx.clover > 0) { t.rig.luck = { seat: 0, p: 0.35 }; w.fx.clover--; }
+    S.peeks = []; S.mirror = null; S.chooser = null; S.result = null; S.sel = { discard: -1, open: -1 };
+    S.slot = S.pending.slot; S.ins = S.pending.ins; S.pending = { slot: false, ins: false };
+    S.handStart = me.stack;
+    if (!C.newHand(t)) { renderTable(); return; }
+    w.table.stack = me.stack; save();
+    if (t.phase === 'choose') for (const i of C.inHand(t)) if (t.seats[i].kind === 'ai') C.aiChoose(t, i);
+    renderTable(); pump();
+  }
+
+  function pump() {
+    if (!S || S.mode !== 'single' || S.game === 'blackjack') return;
+    clearTimeout(S.timer);
+    const t = S.t;
+    if (t.phase === 'done') { handEnd(); return; }
+    if (t.phase !== 'bet') return;
+    const i = t.toAct;
+    if (i < 0) return;
+    if (t.seats[i].kind === 'ai') {
+      S.timer = setTimeout(() => {
+        if (!S || S.t !== t) return;
+        const ok = C.aiAct(t, i);
+        if (!ok) C.act(t, i, { type: 'fold' });
+        speak(i);
+        afterChange();
+      }, 600 + Math.random() * 600);
+    }
+  }
+  function speak(i) {
+    const t = S.t, s = t.seats[i], la = t.lastAct;
+    if (!la || la.seat !== i) return;
+    const key = la.text.startsWith('다이') ? 'fold' : la.text.startsWith('체크') ? 'check' : la.text.startsWith('콜') ? 'call' : 'raise';
+    const pool = s.drunk > 0 ? ['딸꾹, 기분이 좋은데?', '한 잔 더 주세요!'] : (LINES[s.persona] || LINES.calc)[key];
+    S.bubble = { seat: i, text: la.text + (Math.random() < 0.55 ? ' · ' + rand(pool) : '') };
+    clearTimeout(S.bubbleT);
+    S.bubbleT = setTimeout(() => { if (S) { S.bubble = null; renderTable(); } }, 2200);
+  }
+  function afterChange() {
+    const w = W.data;
+    if (S.mode === 'single' && w.table) { const st = S.t.seats[0].stack; if (w.table.stack !== st) { w.table.stack = st; save(); } }
+    renderTable(); pump();
+  }
+  function myAct(type, to) {
+    if (!S || S.t.toAct !== 0) return;
+    S.chooser = null;
+    if (C.act(S.t, 0, { type, to })) afterChange();
+  }
+  function handEnd() {
+    const t = S.t, w = W.data, me = t.seats[0];
+    if (S.result && S.result.hand === t.handNo) return;
+    const net = me.stack - S.handStart;
+    let extra = 0;
+    if (S.slot) { if (net > 0) extra += net; else if (net < 0) extra -= Math.min(w.chips, -net); }
+    if (S.ins && net < 0) extra += Math.floor(-net / 2);
+    w.chips += extra;
+    w.table.stack = me.stack; w.stats.hands++;
+    w.stats.best = Math.max(w.stats.best, w.chips + w.vault + me.stack);
+    for (const s of t.seats) if (s.drunk > 0) s.drunk--;
+    save();
+    S.result = { hand: t.handNo, net, extra, res: t.results };
+    renderTable();
+  }
+
+  function leaveTable() {
+    const w = W.data;
+    stopTimers();
+    if (S && S.mode === 'single') {
+      if (S.game === 'blackjack') { /* 블랙잭은 베팅이 이미 지갑에서 빠졌다 */ }
+      else {
+        const t = S.t, me = t.seats[0];
+        const mid = (t.phase === 'bet' || t.phase === 'choose') && !me.folded;
+        w.chips += me.stack; w.table = null;
+        if (mid) toast('판 도중에 일어나서 이번 판에 건 칩은 잃었어요.');
+      }
+      save();
+    } else if (S && S.leave) S.leave();
+    S = null;
+    show('scrLobby'); renderLobby();
+  }
+
+  // ── 아이템 사용 ──
+  function itemUsable(id) {
+    if (!S || S.mode !== 'single') return false;
+    const it = ITEMS[id], w = W.data, g = S.game;
+    if (!(w.items[id] > 0) || !it.games.includes(g)) return false;
+    const t = S.t;
+    const between = g === 'blackjack' ? (t.phase === 'bet' || t.phase === 'done') : (t.phase === 'done' || t.phase === 'idle');
+    const target = between ? t.handNo + 1 : t.handNo;
+    if (S.usedFor === target) return false;
+    if (it.when === 'prep') return between;
+    if (g === 'blackjack') {
+      const myTurn = t.phase === 'play' && t.turn && t.turn.seat === 0;
+      if (id === 'whiskey') return false;
+      return myTurn;
+    }
+    const me = t.seats[0];
+    if (id === 'whiskey') return between || ((t.phase === 'bet' || t.phase === 'choose') && !me.folded);
+    if (!((t.phase === 'bet' || t.phase === 'choose') && !me.folded)) return false;
+    if (id === 'pistol') return g === 'holdem' ? t.board.length <= 3 : (t.phase === 'choose' || t.street <= 2);
+    return true;
+  }
+  function consume(id, forNext) {
+    const w = W.data, it = ITEMS[id];
+    w.items[id]--;
+    S.usedFor = forNext ? S.t.handNo + 1 : S.t.handNo;
+    if (it.sus) { w.sus = Math.min(100, w.sus + it.sus); }
+    save();
+    if (w.sus >= 100) { setTimeout(() => caught('의심이 한계를 넘었어요.'), 400); return false; }
+    return true;
+  }
+  function caught(why) {
+    const w = W.data;
+    stopTimers();
+    if (S && S.game !== 'blackjack' && S.mode === 'single') { const me = S.t.seats[0]; me.folded = true; w.chips += me.stack; me.stack = 0; w.table = null; }
+    w.sus = 100; w.banDay = dayKey(); save();
+    S = null;
+    dialog('경비원이 어깨를 두드립니다', [
+      h('p', { class: 'sub', text: why + ' 이번 판에 건 칩은 몰수되고, 남은 칩만 챙겨서 밖으로 안내받았어요. 오늘은 더 이상 입장할 수 없어요.' }),
+      h('div', { class: 'row' }, h('button', { class: 'btn gold', text: '로비로', onclick: () => { closeDialog(); show('scrLobby'); renderLobby(); } }))
+    ], false);
+  }
+
+  function useItem(id) {
+    if (!itemUsable(id)) return;
+    const t = S.t, g = S.game, it = ITEMS[id];
+    const between = g === 'blackjack' ? (t.phase === 'bet' || t.phase === 'done') : (t.phase === 'done' || t.phase === 'idle');
+    if (it.when === 'prep') {
+      if (id === 'slot') S.pending.slot = true;
+      if (id === 'insurance') S.pending.ins = true;
+      if (id === 'clover') W.data.fx.clover += 4;
+      if (id === 'notebook') W.data.fx.notebook += 5;
+      consume(id, true);
+      toast(it.name + ': 다음 판부터 효과가 시작돼요.');
+      return renderTable();
+    }
+    if (id === 'mirror') {
+      const next = g === 'blackjack' ? t.shoe[0] : t.deck[0];
+      S.mirror = { card: next, left: g === 'blackjack' ? t.shoe.length : t.deck.length };
+      consume(id); return renderTable();
+    }
+    if (g === 'blackjack') {
+      if (id === 'pistol') { if (!consume(id)) return; t.rig.forceExtra = true; toast('딜러의 손이 떨리기 시작했어요.'); return renderTable(); }
+      if (id === 'lens') { consume(id); S.peekHole = true; return renderTable(); }
+    }
+    // 고르는 화면이 필요한 아이템
+    S.chooser = { id, between };
+    renderTable();
+  }
+  function chooserPick(choice) {
+    const ch = S.chooser; if (!ch) return;
+    const t = S.t, g = S.game, id = ch.id;
+    S.chooser = null;
+    if (id === 'pistol') {
+      if (!consume(id)) return;
+      if (g === 'holdem') t.rig.suitBoard = { suit: choice, n: 2 }; else t.rig.suitSeat = { seat: 0, suit: choice, n: 2 };
+      toast('딜러가 굳은 얼굴로 고개를 끄덕였어요. ' + C.SUIT_NAME[choice] + ' 두 장.');
+    } else if (id === 'lens') {
+      const s = t.seats[choice];
+      const hidden = s.cards.map((c, k) => k).filter((k) => !s.up[k] && !S.peeks.some((p) => p.seat === choice && p.idx === k));
+      if (!hidden.length) { toast('더 엿볼 카드가 없어요.'); return renderTable(); }
+      consume(id);
+      S.peeks.push({ seat: choice, idx: rand(hidden) });
+    } else if (id === 'whiskey') {
+      consume(id, ch.between);
+      t.seats[choice].drunk = 3;
+      toast(t.seats[choice].name + '이(가) 위스키를 받아 들었어요. 3판 동안 판단이 흐려져요.');
+    } else if (id === 'cigarette' || id === 'sleeve') {
+      if (id === 'sleeve') {
+        const p = W.data.perm.regular ? 0.15 : 0.3;
+        if (Math.random() < p) { W.data.items.sleeve--; save(); return caught('소매에서 에이스가 미끄러져 나왔어요.'); }
+      }
+      if (g === 'blackjack') {
+        const hd = t.seats[0].hands[t.turn.hand];
+        if (id === 'cigarette') { const old = hd.cards[choice]; hd.cards[choice] = t.shoe.shift(); t.shoe.push(old); }
+        else {
+          const k = t.shoe.findIndex((c) => C.rankOf(c) === 12);
+          if (k < 0) { toast('슈에 남은 에이스가 없어요.'); return renderTable(); }
+          const old = hd.cards[choice]; hd.cards[choice] = t.shoe[k]; t.shoe[k] = old;
+        }
+        if (!consume(id)) return;
+        if (C.bjValue(hd.cards).total >= 21) { hd.done = true; C.bjAdvance(t); }
+        afterBJ(); return;
+      }
+      const me = t.seats[0];
+      if (id === 'cigarette') { const old = me.cards[choice]; me.cards[choice] = t.deck.shift(); t.deck.push(old); }
+      else {
+        const k = t.deck.findIndex((c) => C.rankOf(c) === 12);
+        if (k < 0) { toast('덱에 남은 에이스가 없어요.'); return renderTable(); }
+        const old = me.cards[choice]; me.cards[choice] = t.deck[k]; t.deck[k] = old;
+      }
+      if (!consume(id)) return;
+      toast(id === 'cigarette' ? '연기 너머로 카드가 바뀌었어요.' : '소매 속 에이스가 자리를 잡았어요.');
+    }
+    renderTable();
+  }
+
+  // ════════════════ 혼자 하는 블랙잭 ════════════════
+  function sitBJ(T) {
+    const w = W.data;
+    const t = C.makeBJ({ minBet: T.minBet, maxBet: T.maxBet, seats: [{ id: 'me', name: '나', kind: 'human', stack: w.chips }] });
+    S = { mode: 'single', game: 'blackjack', T, t, me: 0, usedFor: -1, bet: T.minBet, pending: { slot: false, ins: false }, slot: false, ins: false,
+      handStart: w.chips, chooser: null, mirror: null, peekHole: false, result: null, counting: false };
+    show('scrTable'); renderTable();
+  }
+  function bjAddBet(n) { const max = Math.min(S.T.maxBet, W.data.chips); S.bet = Math.max(0, Math.min(max, (S.bet || 0) + n)); renderTable(); }
+  function bjDeal() {
+    const t = S.t, w = W.data;
+    if (t.phase === 'play') return;
+    if (S.bet < S.T.minBet) return toast('최소 베팅은 ' + S.T.minBet + '칩이에요.');
+    if (S.bet > w.chips) return toast('칩이 부족해요.');
+    t.phase = 'bet'; t.seats[0].stack = w.chips;
+    if (!C.bjBet(t, 0, S.bet)) return toast('베팅할 수 없는 금액이에요.');
+    t.rig = {};
+    if (w.fx.clover > 0) { t.rig.luck = { seat: 0, p: 0.35 }; w.fx.clover--; }
+    S.counting = w.fx.notebook > 0; if (S.counting) w.fx.notebook--;
+    S.slot = S.pending.slot; S.ins = S.pending.ins; S.pending = { slot: false, ins: false };
+    S.mirror = null; S.peekHole = false; S.chooser = null; S.result = null;
+    S.handStart = w.chips;
+    C.bjDeal(t);
+    w.chips = t.seats[0].stack; save();
+    afterBJ();
+  }
+  function bjMy(type) { const t = S.t; if (C.bjAct(t, 0, type)) { W.data.chips = t.seats[0].stack; save(); afterBJ(); } }
+  function afterBJ() {
+    const t = S.t, w = W.data;
+    if (t.phase === 'done' && !(S.result && S.result.hand === t.handNo)) {
+      const net = t.seats[0].stack - S.handStart;
+      let extra = 0;
+      if (S.slot) { if (net > 0) extra += net; else if (net < 0) extra -= Math.min(t.seats[0].stack, -net); }
+      if (S.ins && net < 0) extra += Math.floor(-net / 2);
+      w.chips = t.seats[0].stack + extra; t.seats[0].stack = w.chips;
+      w.stats.hands++; w.stats.best = Math.max(w.stats.best, w.chips + w.vault);
+      S.result = { hand: t.handNo, net, extra, res: t.results };
+      if (S.bet > w.chips) S.bet = Math.min(w.chips, S.T.maxBet);
+      save();
+    }
+    renderTable();
+  }
+
+  // ════════════════ 테이블 그리기 (혼자 · 친구 공용) ════════════════
+  // ctx: { v(보이는 판), me(내 자리), mine(내 카드), game, title, single, actions… }
+  function ctxSingle() {
+    if (S.game === 'blackjack') {
+      const v = C.viewBJ(S.t);
+      if (S.peekHole && S.t.dealer.cards[1] != null) v.dealer.cards[1] = S.t.dealer.cards[1];
+      return { v, me: 0, game: 'blackjack', single: true };
+    }
+    const v = C.viewPoker(S.t);
+    v.seats[0].cards = S.t.seats[0].cards.slice();
+    for (const p of S.peeks) if (S.t.seats[p.seat]) v.seats[p.seat].peek = Object.assign(v.seats[p.seat].peek || {}, { [p.idx]: S.t.seats[p.seat].cards[p.idx] });
+    return { v, me: 0, game: S.game, single: true };
+  }
+  function renderTable() {
+    if (!S) return;
+    const ctx = S.mode === 'single' ? ctxSingle() : S.ctx();
+    if (!ctx) return;
+    const el = $('#scrTable'); el.innerHTML = '';
+    const T = S.T || {};
+    el.append(h('div', { class: 'tablebar' },
+      h('h2', { text: GAMES[ctx.game].name + (T.name ? ' · ' + T.name : '') + (S.mode !== 'single' ? ' · 친구 테이블' : '') }),
+      S.mode !== 'single' && S.code ? h('span', { class: 'stat' }, '방 코드 ', h('b', { class: 'code', text: S.code })) : null,
+      S.mode === 'single' && S.game !== 'blackjack' ? h('span', { class: 'stat' }, '테이블 칩 ', h('b', { text: fmt(S.t.seats[0].stack) })) : null,
+      h('button', { class: 'btn small', text: '일어나기', onclick: () => confirmLeave(ctx) })));
+    if (ctx.game === 'blackjack') renderBJ(el, ctx); else renderPoker(el, ctx);
+  }
+  function confirmLeave(ctx) {
+    const v = ctx.v;
+    const mid = ctx.game === 'blackjack' ? v.phase === 'play' : ((v.phase === 'bet' || v.phase === 'choose') && v.seats[ctx.me] && !v.seats[ctx.me].folded);
+    if (!mid) return leaveTable();
+    dialog('판 도중이에요', [h('p', { class: 'sub', text: '지금 일어나면 이번 판에 건 칩은 잃어요. 그래도 일어날까요?' }),
+      h('div', { class: 'row' }, h('button', { class: 'btn red', text: '일어나기', onclick: () => { closeDialog(); leaveTable(); } }))]);
+  }
+
+  function seatPos(d, n) {
+    const th = (90 + d * (360 / n)) * Math.PI / 180;
+    const narrow = window.innerWidth < 640;
+    return { x: 50 + (narrow ? 40 : 44) * Math.cos(th), y: 50 + (narrow ? 41 : 40) * Math.sin(th) };
+  }
+
+  function renderPoker(el, ctx) {
+    const v = ctx.v, me = ctx.me, n = v.seats.length;
+    const felt = h('div', { class: 'felt' }, h('div', { class: 'stamp', text: 'VELVET' }));
+    const center = h('div', { class: 'center' });
+    if (v.game === 'holdem') {
+      const b = h('div', { class: 'cards' });
+      for (let k = 0; k < 5; k++) b.append(v.board[k] != null ? cardEl(v.board[k]) : h('span', { class: 'card', style: 'opacity:.12' }));
+      center.append(b);
+    }
+    center.append(h('div', { class: 'pot' }, '팟 ', fmt(v.pot)));
+    if (v.phase === 'done' && v.results) center.append(h('div', { class: 'betchip', text: v.results.winners.map((w) => v.seats[w.seat].name + (w.hand ? ' · ' + w.hand : '') + ' +' + fmt(w.amount)).join(' / ') }));
+    felt.append(center);
+    v.seats.forEach((s, i) => {
+      const d = (i - me + n) % n, p = seatPos(d, n);
+      const isMe = i === me && !ctx.spectate;
+      const winners = v.phase === 'done' && v.results ? v.results.winners.map((w) => w.seat) : [];
+      const seat = h('div', { class: 'seat' + (v.toAct === i && v.phase === 'bet' ? ' turn' : '') + (s.folded && v.phase !== 'idle' ? ' fold' : '') + (winners.includes(i) ? ' win' : ''), style: `left:${p.x}%;top:${p.y}%` });
+      if (!isMe && s.n) {
+        const cs = h('div', { class: 'cards tight' });
+        s.cards.forEach((c, k) => {
+          const pk = s.peek && s.peek[k];
+          cs.append(cardEl(pk != null ? pk : c, { cls: (s.up[k] ? '' : '') + (pk != null ? ' peek' : '') }));
+        });
+        seat.append(cs);
+      }
+      const plate = h('div', { class: 'plate' },
+        h('div', { class: 'nm' }, (v.button === i && v.game === 'holdem') ? h('span', { class: 'dealer-btn', style: 'display:inline-grid;margin-right:4px', text: 'D' }) : null, isMe ? '나' : (ctx.names && ctx.names[i]) || s.name),
+        h('div', { class: 'st' }, s.away ? '자리 비움' : fmt(s.stack) + (s.allin ? ' · 올인' : '')),
+        (!isMe && s.persona && ctx.single) ? h('div', { class: 'note', style: 'font-size:11px', text: C.PERSONA[s.persona].name + (s.drunk > 0 ? ' · 취함' : '') }) : null);
+      seat.append(plate);
+      if (s.bet > 0) seat.append(h('span', { class: 'betchip', text: fmt(s.bet) }));
+      if (v.phase === 'done' && v.results && v.results.hands && v.results.hands[i] && !isMe) seat.append(h('span', { class: 'betchip', text: v.results.hands[i] }));
+      const bub = S.bubble && S.bubble.seat === i ? S.bubble.text : (ctx.bubbles && ctx.bubbles[i]);
+      if (bub) seat.append(h('span', { class: 'bubble', text: bub }));
+      felt.append(seat);
+    });
+    el.append(felt);
+
+    // 내 자리
+    const mine = v.seats[me];
+    const panel = h('div', { class: 'hand-panel' });
+    let status = '', warn = false;
+    if (ctx.waitingHost) status = ctx.waitingHost;
+    else if (v.phase === 'idle') status = '다른 손님을 기다리는 중이에요.';
+    else if (v.phase === 'done') status = '판이 끝났어요.';
+    else if (v.phase === 'choose') status = mine.chosen ? '다른 손님들이 카드를 고르는 중이에요.' : '버릴 카드 한 장을 누르고, 공개할 카드 한 장을 누르세요.';
+    else if (!mine) status = '';
+    else if (mine.folded) status = '이번 판은 다이했어요. 다른 손님들의 승부를 지켜보세요.';
+    else if (v.toAct === me) { status = '당신 차례예요.'; warn = true; }
+    else status = (v.seats[v.toAct] ? ((ctx.names && ctx.names[v.toAct]) || v.seats[v.toAct].name) : '') + '의 차례예요.';
+    if (ctx.timer) status += ' ' + ctx.timer;
+    panel.append(h('div', { class: 'status' + (warn ? ' warn' : ''), text: status }));
+
+    const myCards = ctx.spectate ? [] : (ctx.mine || mine.cards);
+    if (!ctx.spectate && v.phase === 'choose' && !mine.chosen && myCards.length === 4) {
+      const sel = S.sel || { discard: -1, open: -1 };
+      const row = h('div', { class: 'cards mycards' });
+      myCards.forEach((c, k) => row.append(cardEl(c, { btn: true, cls: k === sel.discard ? 'sel-discard' : k === sel.open ? 'sel-open' : '',
+        onclick: () => { if (sel.discard < 0 || sel.discard === k) sel.discard = sel.discard === k ? -1 : k; else if (sel.open === k) sel.open = -1; else sel.open = k; S.sel = sel; renderTable(); } })));
+      panel.append(row, h('p', { class: 'note', text: (sel.discard < 0 ? '먼저 버릴 카드를 누르세요.' : sel.open < 0 ? '이제 공개할 카드를 누르세요.' : '버릴 카드는 아래로, 공개할 카드는 위로 올라왔어요.') }),
+        h('div', { class: 'actions' }, h('button', { class: 'btn gold', text: '이대로 확정', disabled: !(sel.discard >= 0 && sel.open >= 0), onclick: () => { ctx.choose ? ctx.choose(sel.discard, sel.open) : singleChoose(sel.discard, sel.open); } })));
+    } else if (myCards.length) {
+      const row = h('div', { class: 'cards mycards' });
+      myCards.forEach((c, k) => row.append(cardEl(c, { cls: (v.game === 'seven' && mine.up[k] ? 'up-mark' : '') + (mine.folded ? ' dim' : ''),
+        btn: S.chooser && (S.chooser.id === 'cigarette' || S.chooser.id === 'sleeve'), onclick: S.chooser && (S.chooser.id === 'cigarette' || S.chooser.id === 'sleeve') ? () => chooserPick(k) : null })));
+      panel.append(row);
+      if (v.game === 'seven') panel.append(h('p', { class: 'note', text: '금테 두른 카드는 상대에게 보이는 카드예요.' }));
+      const all = v.game === 'holdem' ? myCards.concat(v.board) : myCards;
+      if (all.length >= 2 && myCards.every((c) => c >= 0)) panel.append(h('div', { class: 'handname', text: C.handName(C.evalHand(all)) }));
+    }
+
+    // 베팅 조작
+    if (!ctx.spectate && v.phase === 'bet' && v.toAct === me && !mine.folded) {
+      const L = ctx.legal ? ctx.legal() : C.legal(S.t, me);
+      if (L) panel.append(betControls(v, L, ctx));
+    }
+    // 판 결과
+    if (v.phase === 'done') {
+      if (ctx.single && S.result) {
+        const r = S.result;
+        const txt = r.net > 0 ? '이번 판 +' + fmt(r.net) + '칩' : r.net < 0 ? '이번 판 ' + fmt(r.net) + '칩' : '본전이에요';
+        panel.append(h('div', { class: 'result' + (r.net < 0 ? ' lose' : '') }, h('b', { text: txt }),
+          r.extra ? h('div', { class: 'note', text: (r.extra > 0 ? '아이템 효과로 지갑에 +' : '아이템 효과로 지갑에서 ') + fmt(r.extra) + '칩' }) : null));
+      }
+      if (ctx.single) {
+        if (S.t.seats[0].stack > 0) panel.append(h('div', { class: 'actions' }, h('button', { class: 'btn gold', text: '다음 판', onclick: startHand }), h('button', { class: 'btn', text: '로비로', onclick: () => leaveTable() })));
+        else panel.append(h('p', { class: 'note', text: '테이블 칩이 다 떨어졌어요.' }), h('div', { class: 'actions' }, h('button', { class: 'btn gold', text: '로비로', onclick: () => leaveTable() })));
+      }
+    }
+    if (ctx.single && v.phase === 'idle' && S.t.seats[0].stack <= 0) panel.append(h('div', { class: 'actions' }, h('button', { class: 'btn gold', text: '로비로', onclick: () => leaveTable() })));
+    if (ctx.extra) panel.append(ctx.extra);
+
+    const side = h('div', { class: 'hand-panel' });
+    if (ctx.single) side.append(bagEl(v));
+    side.append(h('div', { class: 'label note', text: '진행' }), logEl(v.log));
+    el.append(h('div', { class: 'myarea' }, panel, side));
+  }
+
+  function betControls(v, L, ctx) {
+    const doAct = ctx.act || myAct;
+    const box = h('div', { class: 'raise' });
+    const acts = h('div', { class: 'actions' },
+      h('button', { class: 'btn red', text: '다이', onclick: () => doAct('fold') }),
+      h('button', { class: 'btn', text: L.canCheck ? '체크' : '콜 ' + fmt(L.call) + (L.call < L.toCall ? ' (올인)' : ''), onclick: () => doAct(L.canCheck ? 'check' : 'call') }));
+    box.append(acts);
+    if (L.canRaise && L.maxTo > v.curBet) {
+      const clamp = (x) => Math.max(L.minTo, Math.min(L.maxTo, Math.round(x)));
+      if (!S.raiseTo || S.raiseTo < L.minTo || S.raiseTo > L.maxTo) S.raiseTo = L.minTo;
+      const r = h('input', { type: 'range', min: String(L.minTo), max: String(L.maxTo), step: '1', value: String(S.raiseTo), 'aria-label': '베팅 금액' });
+      const go = h('button', { class: 'btn gold', text: (v.curBet === 0 ? '베팅 ' : '레이즈 ') + fmt(S.raiseTo), onclick: () => doAct('raise', S.raiseTo) });
+      r.oninput = () => { S.raiseTo = Number(r.value); go.textContent = (v.curBet === 0 ? '베팅 ' : '레이즈 ') + fmt(S.raiseTo) + (S.raiseTo === L.allTo ? ' (올인)' : ''); };
+      const pot = L.pot;
+      const presets = v.game === 'seven'
+        ? [['삥', L.minTo], ['따당', v.curBet * 2], ['하프', v.curBet + (pot + L.toCall) / 2], ['풀', L.maxTo]]
+        : [['최소', L.minTo], ['½ 팟', v.curBet + (pot + L.toCall) / 2], ['팟', v.curBet + pot + L.toCall], ['올인', L.allTo]];
+      const pr = h('div', { class: 'presets' });
+      for (const [nm, val] of presets) { if (nm === '따당' && v.curBet === 0) continue; pr.append(h('button', { class: 'btn small', text: nm, onclick: () => { S.raiseTo = clamp(val); r.value = String(S.raiseTo); r.oninput(); } })); }
+      box.append(pr, r, h('div', { class: 'actions' }, go));
+    }
+    return box;
+  }
+
+  function logEl(lines) { const ul = h('ul', { class: 'log' }); for (const l of (lines || []).slice(-10)) ul.append(h('li', { text: l })); return ul; }
+
+  function bagEl(v) {
+    const w = W.data, g = S.game;
+    const box = h('div', { style: 'display:grid;gap:8px' });
+    box.append(h('div', { class: 'label note', text: '가방 · 한 판에 하나' }));
+    const bag = h('div', { class: 'bag' });
+    let any = false;
+    for (const id in ITEMS) {
+      if (!(w.items[id] > 0) || !ITEMS[id].games.includes(g)) continue;
+      any = true;
+      const ok = itemUsable(id);
+      bag.append(h('button', { class: 'item-btn', disabled: !ok, title: descOf(id, g), onclick: () => useItem(id) },
+        h('span', { class: 'ico', svg: icon(id) }), h('b', { text: ITEMS[id].name + ' ×' + w.items[id] }), h('small', { text: ITEMS[id].when === 'prep' ? '판 시작 전' : ITEMS[id].kind === 'cheat' ? '의심 +' + ITEMS[id].sus : '내 차례에' })));
+    }
+    if (!any) bag.append(h('p', { class: 'note', text: '가방이 비었어요. 로비의 상점에서 살 수 있어요.' }));
+    box.append(bag);
+    const fx = [];
+    if (w.fx.clover > 0 || (S.t.rig && S.t.rig.luck)) fx.push('네잎클로버 ' + (w.fx.clover + (S.t.rig && S.t.rig.luck ? 1 : 0)) + '판');
+    if (S.pending.slot || S.slot) fx.push('슬롯 코인');
+    if (S.pending.ins || S.ins) fx.push('보험 증서');
+    if (g === 'blackjack' && (S.counting || w.fx.notebook > 0)) fx.push('카운팅 수첩 ' + (w.fx.notebook + (S.counting ? 1 : 0)) + '판');
+    if (fx.length) box.append(h('p', { class: 'note', text: '걸린 효과: ' + fx.join(' · ') }));
+    if (S.mirror) {
+      const left = g === 'blackjack' ? S.t.shoe.length : S.t.deck.length;
+      if (left === S.mirror.left) box.append(h('div', { class: 'row' }, h('span', { class: 'note', text: '거울에 비친 다음 카드' }), cardEl(S.mirror.card)));
+    }
+    if (S.chooser) box.append(chooserEl(v));
+    return box;
+  }
+  function chooserEl(v) {
+    const id = S.chooser.id, t = S.t, g = S.game;
+    const box = h('div', { class: 'chooser' });
+    const cancel = h('button', { class: 'btn small', text: '취소', onclick: () => { S.chooser = null; renderTable(); } });
+    if (id === 'pistol') {
+      box.append(h('b', { text: '어떤 무늬로 깔게 할까요?' }));
+      const r = h('div', { class: 'row' });
+      [0, 1, 2, 3].forEach((s) => r.append(h('button', { class: 'btn small', text: C.SU[s] + ' ' + C.SUIT_NAME[s], onclick: () => chooserPick(s) })));
+      box.append(r);
+    } else if (id === 'lens' || id === 'whiskey') {
+      box.append(h('b', { text: id === 'lens' ? '누구의 카드를 엿볼까요?' : '누구에게 위스키를 보낼까요?' }));
+      const r = h('div', { class: 'row' });
+      t.seats.forEach((s, i) => { if (i === 0 || (id === 'lens' && s.folded)) return; r.append(h('button', { class: 'btn small', text: s.name, onclick: () => chooserPick(i) })); });
+      box.append(r);
+    } else if (id === 'cigarette' || id === 'sleeve') {
+      box.append(h('b', { text: id === 'cigarette' ? '바꿔치기할 내 카드를 누르세요.' : '에이스로 바꿀 내 카드를 누르세요.' }));
+      if (g === 'blackjack') {
+        const hd = t.seats[0].hands[t.turn.hand];
+        const r = h('div', { class: 'cards' }); hd.cards.forEach((c, k) => r.append(cardEl(c, { btn: true, cls: 'pick', onclick: () => chooserPick(k) }))); box.append(r);
+      } else box.append(h('p', { class: 'note', text: '왼쪽 내 카드 중 하나를 누르면 돼요.' }));
+    }
+    box.append(cancel);
+    return box;
+  }
+  function singleChoose(d, o) { if (C.choose(S.t, 0, d, o)) { S.sel = { discard: -1, open: -1 }; afterChange(); } }
+
+  // ── 블랙잭 그리기 ──
+  function renderBJ(el, ctx) {
+    const v = ctx.v, me = ctx.me;
+    const felt = h('div', { class: 'felt' }, h('div', { class: 'stamp', style: 'top:46%', text: 'BLACKJACK PAYS 3 TO 2' }));
+    const dv = v.dealer.cards.every((c) => c >= 0) && v.dealer.cards.length ? C.bjValue(v.dealer.cards).total : null;
+    const dealer = h('div', { class: 'seat', style: 'left:50%;top:24%' },
+      h('div', { class: 'cards' }, v.dealer.cards.map((c) => cardEl(c))),
+      h('div', { class: 'plate' }, h('div', { class: 'nm', text: '딜러' }), h('div', { class: 'st', text: dv != null && v.dealer.cards.length ? String(dv) : v.dealer.cards.length ? '?' : '' })));
+    felt.append(dealer);
+    const n = v.seats.length;
+    v.seats.forEach((s, i) => {
+      const d = (i - me + n) % n;
+      const x = n === 1 ? 50 : 50 + (d === 0 ? 0 : (d % 2 ? -1 : 1) * Math.ceil(d / 2) * (78 / Math.max(2, n)));
+      const seat = h('div', { class: 'seat' + (v.turn && v.turn.seat === i ? ' turn' : ''), style: `left:${x}%;top:${d === 0 ? 70 : 66}%` });
+      s.hands.forEach((hd, hi) => {
+        const val = C.bjValue(hd.cards).total;
+        seat.append(h('div', { class: 'cards' + (v.turn && v.turn.seat === i && v.turn.hand === hi ? '' : '') }, hd.cards.map((c) => cardEl(c))),
+          h('span', { class: 'betchip', text: val + '점' + (hd.doubled ? ' · 더블' : '') + ' · ' + fmt(hd.bet) + '칩' }));
+      });
+      seat.append(h('div', { class: 'plate' }, h('div', { class: 'nm', text: i === me && !ctx.spectate ? '나' : (ctx.names && ctx.names[i]) || s.name }), h('div', { class: 'st', text: s.away ? '자리 비움' : fmt(s.stack) + (s.bet && !s.hands.length ? ' · 베팅 ' + fmt(s.bet) : '') })));
+      felt.append(seat);
+    });
+    el.append(felt);
+
+    const mine = v.seats[me];
+    const panel = h('div', { class: 'hand-panel' });
+    const myTurn = !ctx.spectate && v.phase === 'play' && v.turn && v.turn.seat === me;
+    let status = v.phase === 'bet' || v.phase === 'done' ? '베팅하고 딜을 누르세요.' : myTurn ? '당신 차례예요.' : '다른 자리의 차례예요.';
+    if (ctx.waitingHost) status = ctx.waitingHost;
+    if (ctx.timer) status += ' ' + ctx.timer;
+    panel.append(h('div', { class: 'status' + (myTurn ? ' warn' : ''), text: status }));
+    if (v.phase === 'done' && v.results) {
+      const r = ctx.spectate ? null : v.results.res.find((x) => x.seat === me);
+      if (r) {
+        const extra = ctx.single && S.result ? S.result.extra : 0;
+        panel.append(h('div', { class: 'result' + (r.net < 0 ? ' lose' : '') }, h('b', { text: r.tags.join(' · ') + ' · ' + (r.net > 0 ? '+' : '') + fmt(r.net) + '칩' }),
+          h('div', { class: 'note', text: '딜러 ' + v.results.dealer + (v.results.dealerBJ ? ' (블랙잭)' : '') }),
+          extra ? h('div', { class: 'note', text: (extra > 0 ? '아이템 효과로 +' : '아이템 효과로 ') + fmt(extra) + '칩' }) : null));
+      }
+    }
+    if (myTurn) {
+      const L = ctx.bjLegal ? ctx.bjLegal() : C.bjLegal(S.t, me);
+      const doIt = ctx.bjAct || bjMy;
+      if (L) panel.append(h('div', { class: 'actions' },
+        h('button', { class: 'btn gold', text: '히트', onclick: () => doIt('hit') }),
+        h('button', { class: 'btn', text: '스탠드', onclick: () => doIt('stand') }),
+        h('button', { class: 'btn', text: '더블', disabled: !L.double, onclick: () => doIt('double') }),
+        h('button', { class: 'btn', text: '스플릿', disabled: !L.split, onclick: () => doIt('split') })));
+    }
+    if ((v.phase === 'bet' || v.phase === 'done') && (ctx.single || ctx.canBet)) {
+      const T = S.T;
+      const cur = ctx.single ? S.bet : (S.bet || T.minBet);
+      const chips = h('div', { class: 'presets' });
+      for (const c of T.chips) chips.append(h('button', { class: 'btn small', onclick: () => (ctx.addBet || bjAddBet)(c) }, h('span', { class: 'chip-ico' }), ' +' + c));
+      chips.append(h('button', { class: 'btn small', text: '지우기', onclick: () => (ctx.addBet || bjAddBet)(-1e9) }));
+      panel.append(h('div', { class: 'stat' }, '베팅 ', h('b', { text: fmt(cur) }), ' · 한도 ' + T.minBet + '~' + fmt(T.maxBet)), chips,
+        h('div', { class: 'actions' }, h('button', { class: 'btn gold', text: ctx.single ? '딜' : '베팅 확정', disabled: cur < T.minBet, onclick: () => (ctx.deal || bjDeal)() }),
+          ctx.single ? h('button', { class: 'btn', text: '로비로', onclick: () => leaveTable() }) : null));
+    }
+    if (ctx.extra) panel.append(ctx.extra);
+    const side = h('div', { class: 'hand-panel' });
+    if (ctx.single) {
+      side.append(bagEl(v));
+      if (S.counting) {
+        const t = S.t, decks = Math.max(0.5, t.shoe.length / 52), tc = t.running / decks;
+        side.append(h('div', { class: 'chooser' }, h('b', { text: '카운팅 수첩' }),
+          h('p', { class: 'note', text: '러닝 카운트 ' + (t.running > 0 ? '+' : '') + t.running + ' · 남은 덱 ' + decks.toFixed(1) + '벌' }),
+          h('p', { class: 'note', text: tc >= 2 ? '큰 카드가 많이 남았어요. 베팅을 올릴 때예요.' : tc <= -1 ? '작은 카드가 많이 남았어요. 몸을 사리세요.' : '평범한 흐름이에요.' })));
+      }
+    }
+    side.append(h('div', { class: 'label note', text: '진행 · 슈 ' + v.shoeLeft + '장 남음' }), logEl(v.log));
+    el.append(h('div', { class: 'myarea' }, panel, side));
+  }
+
+  // ════════════════ 관리자 모드 ════════════════
+  // 왼쪽 위 VELVET을 2.5초 안에 5번 누르면 열린다. 온라인 판에서는 아래 아이디만.
+  const ADMIN_IDS = ['yh20507'];
+  let brandTaps = [];
+  function adminAllowed() {
+    if (W.mode !== 'online') return true;
+    return ADMIN_IDS.includes(String(VelvetOnline.id || '').toLowerCase());
+  }
+  function onBrandTap() {
+    const now = Date.now();
+    brandTaps = brandTaps.filter((t) => now - t < 2500); brandTaps.push(now);
+    if (brandTaps.length < 5) return;
+    brandTaps = [];
+    if (!W.data || W.frozen || !adminAllowed()) return;
+    if (S) { toast('관리자 모드는 로비에서 열 수 있어요.'); return; }
+    adminPanel();
+  }
+  function adminPanel() {
+    const w = W.data;
+    const numIn = (val, max) => h('input', { type: 'number', min: '0', max: max != null ? String(max) : null, step: '1', value: String(val) });
+    const row = (label, input) => h('label', { class: 'adm-row' }, h('span', { text: label }), input);
+    const chips = numIn(w.chips), vault = numIn(w.vault), sus = numIn(w.sus, 100);
+    const unban = h('input', { type: 'checkbox' });
+    const perms = {}, items = {};
+    for (const id in PERMS) perms[id] = h('input', { type: 'checkbox', checked: !!w.perm[id] });
+    for (const id in ITEMS) items[id] = numIn(w.items[id] || 0, 99);
+    const body = [
+      h('p', { class: 'sub', text: '숫자를 바꾸고 적용을 누르면 바로 저장돼요.' }),
+      h('div', { class: 'adm-grid' },
+        row('칩', chips), row('금고', vault), row('의심 (0~100)', sus),
+        banned() ? h('label', { class: 'adm-row adm-check' }, unban, h('span', { text: '오늘 출입 금지 풀기' })) : null),
+      h('h3', { text: '영구 아이템' }),
+      h('div', { class: 'adm-grid' }, Object.keys(PERMS).map((id) => h('label', { class: 'adm-row adm-check' }, perms[id], h('span', { text: PERMS[id].name })))),
+      h('h3', { text: '아이템 개수' }),
+      h('div', { class: 'adm-grid' }, Object.keys(ITEMS).map((id) => row(ITEMS[id].name, items[id]))),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn gold', text: '적용', onclick: () => {
+          const n = (el, max) => { let v = Math.max(0, Math.floor(Number(el.value) || 0)); if (max != null) v = Math.min(max, v); return v; };
+          w.chips = n(chips); w.vault = n(vault); w.sus = n(sus, 100);
+          if (unban.checked) { w.banDay = null; if (w.sus >= 100) w.sus = 0; }
+          for (const id in PERMS) { if (perms[id].checked) w.perm[id] = true; else delete w.perm[id]; }
+          for (const id in ITEMS) { const v = n(items[id], 99); if (v) w.items[id] = v; else delete w.items[id]; }
+          if (!w.perm.vault && w.vault) { w.chips += w.vault; w.vault = 0; }
+          w.stats.best = Math.max(w.stats.best || 0, w.chips + w.vault);
+          save(); closeDialog();
+          if (!$('#scrLobby').hidden) renderLobby();
+          if (!$('#scrShop').hidden) renderShop();
+          toast('관리자 모드로 바꿨어요.');
+        } }))
+    ];
+    dialog('관리자 모드', body);
+  }
+
+  // ════════════════ 시작 ════════════════
+  // 온라인 판: 입구에서 아이디·비밀번호로 로그인
+  function loginForm() {
+    return new Promise((resolve) => {
+      const sign = $('#door .sign');
+      const box = h('form', { class: 'login', style: 'display:grid;gap:8px;width:min(300px,100%)' });
+      const id = h('input', { type: 'text', id: 'loginId', placeholder: '아이디 (영문, 숫자 4~20자)', autocomplete: 'username', 'aria-label': '아이디' });
+      const pw = h('input', { type: 'password', id: 'loginPw', placeholder: '비밀번호 (6자 이상)', autocomplete: 'current-password', 'aria-label': '비밀번호' });
+      const msg = h('p', { class: 'note', style: 'color:var(--danger);min-height:1.2em;margin:0' });
+      const go = async (kind) => {
+        const v = id.value.trim();
+        if (!/^[A-Za-z0-9_]{4,20}$/.test(v)) { msg.textContent = '아이디는 영문, 숫자, _ 로 4~20자예요.'; return; }
+        if (pw.value.length < 6) { msg.textContent = '비밀번호는 6자 이상이에요.'; return; }
+        msg.textContent = kind === 'up' ? '가입하는 중…' : '로그인하는 중…';
+        try {
+          if (kind === 'up') await VelvetOnline.signUp(v, pw.value); else await VelvetOnline.signIn(v, pw.value);
+          box.remove(); resolve();
+        } catch (e) { msg.textContent = VelvetOnline.korean(e); }
+      };
+      box.onsubmit = (e) => { e.preventDefault(); go('in'); };
+      box.append(id, pw, msg,
+        h('div', { class: 'row', style: 'justify-content:center' },
+          h('button', { class: 'btn gold', type: 'submit', text: '로그인' }),
+          h('button', { class: 'btn', type: 'button', text: '처음이에요 (가입)', onclick: () => go('up') })),
+        h('p', { class: 'note', text: '이 기기에서는 로그인 상태가 유지돼요. 비밀번호는 찾을 수 없으니 잊지 마세요.' }));
+      $('#enter').hidden = true;
+      sign.append(box);
+      id.focus();
+    });
+  }
+
+  async function boot() {
+    $('#enter').disabled = true; $('#enter').textContent = '문을 여는 중…';
+    if (window.VelvetOnline) {
+      let ok = false;
+      if (VelvetOnline.loadSession()) { try { await loadWallet(); ok = true; } catch (e) { VelvetOnline.clearSession(); } }
+      while (!ok) {
+        await loginForm();
+        try { await loadWallet(); ok = true; } catch (e) { toast(VelvetOnline.korean(e)); VelvetOnline.clearSession(); }
+      }
+      $('#enter').hidden = false;
+      const lo = $('#wLogout'); if (lo) lo.onclick = () => { VelvetOnline.clearSession(); location.reload(); };
+    } else await loadWallet();
+    const msgs = morning(); save();
+    $('#enter').disabled = false; $('#enter').textContent = '입장하기';
+    renderTop();
+    $('#enter').onclick = () => {
+      $('#door').classList.add('open');
+      $('#app').hidden = false;
+      show('scrLobby'); renderLobby();
+      msgs.forEach((m, k) => setTimeout(() => toast(m), 900 + k * 3400));
+      setTimeout(() => { $('#door').hidden = true; }, 1200);
+    };
+    $('#toLobby').onclick = () => { show('scrLobby'); renderLobby(); };
+    $('.topbar .brand').onclick = onBrandTap;
+    $('#ov').addEventListener('click', (e) => { if (e.target.id === 'ov' && $('#ovBox').querySelector('button')) { /* 바깥 클릭으로는 닫지 않음 */ } });
+    window.addEventListener('resize', () => { if (S) renderTable(); });
+  }
+
+  return { boot, h, $, cardEl, renderTable, show, renderLobby, toast, dialog, closeDialog, fmt, GAMES, TIERS, tierOf, W, get S() { return S; }, set S(v) { S = v; }, leaveTable, stopTimers, rand, ROSTER, newAI, logEl };
+})();
+</script>
+<script>
+/* ===== 벨벳 카지노 · 친구 테이블 =====
+   방장의 브라우저가 딜러를 맡는다. 판 상태(공개 정보)는 모두에게 보내고,
+   각자의 숨은 카드는 그 사람만 풀 수 있게 암호화해서 보낸다. */
+const Friends = (() => {
+  const C = Cas, A = App, h = A.h, $ = A.$;
+  const MT = {
+    holdem: { name: '친구', sb: 5, bb: 10, unit: 10, start: 1000 },
+    seven: { name: '친구', ante: 5, unit: 10, start: 1000 },
+    blackjack: { name: '친구', minBet: 10, maxBet: 200, chips: [10, 25, 50, 100], start: 1000 }
+  };
+  const TURN_MS = 30000, BET_MS = 25000, NEXT_MS = 6000;
+  let lobby = null, user = null, myUid = null, lobbyPeer = null, ready = false;
+  let pub = null, kp = null;
+  let unsubPeers = null;
+
+  // ── 암호 ──
+  const b64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
+  const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  async function keys() {
+    if (kp) return;
+    kp = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveKey']);
+    const j = await crypto.subtle.exportKey('jwk', kp.publicKey);
+    pub = { x: j.x, y: j.y };
+  }
+  async function derive(other) {
+    const pk = await crypto.subtle.importKey('jwk', { kty: 'EC', crv: 'P-256', x: other.x, y: other.y, ext: true }, { name: 'ECDH', namedCurve: 'P-256' }, false, []);
+    return crypto.subtle.deriveKey({ name: 'ECDH', public: pk }, kp.privateKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+  async function enc(key, obj) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(obj)));
+    return { iv: b64(iv), ct: b64(ct) };
+  }
+  async function dec(key, m) {
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(m.iv) }, key, unb64(m.ct));
+    return JSON.parse(new TextDecoder().decode(pt));
+  }
+
+  async function init() {
+    if (ready) return !!lobby;
+    ready = true;
+    try {
+      const use = window.claude && window.claude.use ? window.claude.use.bind(window.claude) : null;
+      if (!use) return false;
+      [lobby, user] = await Promise.all([use('room'), use('user')]);
+      myUid = user ? await user.id() : null;
+      if (lobby) {
+        unsubPeers = lobby.onPeers((ch) => {
+          for (const p of ch.peers) if (p.isMe && p.sameTab) lobbyPeer = p.peer;
+          if (!$('#scrFriends').hidden) renderList();
+        }, () => {});
+        await keys();
+      }
+    } catch (e) { lobby = null; }
+    return !!lobby;
+  }
+
+  // ════════ 친구 로비 ════════
+  async function open() {
+    const el = $('#scrFriends'); el.innerHTML = '';
+    el.append(h('div', { class: 'lobby-head' }, h('h1', { text: '친구 테이블' }),
+      h('p', { class: 'sub', text: '방을 만들면 방 코드가 생겨요. 친구가 이 카지노 링크를 열고 친구 테이블에서 그 방을 고르면 같이 앉을 수 있어요. 빈자리는 AI 손님이 채워요.' })));
+    A.show('scrFriends');
+    const ok = await init();
+    if (!ok) {
+      el.append(h('div', { class: 'panel' }, h('h3', { text: '지금은 친구 테이블을 열 수 없어요' }),
+        h('p', { class: 'note', text: '친구 테이블은 Claude 앱이나 claude.ai에서 이 카지노를 열었을 때만 돼요. 친구도 같은 링크로 들어와야 하고, 공유 설정에서 친구에게 "사용 가능(Contributor)" 이상의 권한을 줘야 같이 앉을 수 있어요.' })));
+      return;
+    }
+    const make = h('div', { class: 'panel' }, h('h3', { text: '방 만들기' }),
+      h('p', { class: 'note', text: '모두 1,000 테이블 칩으로 시작해요. 내 지갑 칩은 쓰지 않고, 아이템도 쓸 수 없어요. 내가 딜러를 맡으니 내가 나가면 방이 닫혀요.' }),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn gold small', text: '홀덤 방', onclick: () => host('holdem') }),
+        h('button', { class: 'btn gold small', text: '세븐 포커 방', onclick: () => host('seven') }),
+        h('button', { class: 'btn gold small', text: '블랙잭 방', onclick: () => host('blackjack') })));
+    const code = h('input', { type: 'text', id: 'joinCode', maxlength: '6', placeholder: '방 코드', autocomplete: 'off', 'aria-label': '방 코드' });
+    const joinBox = h('div', { class: 'panel' }, h('h3', { text: '코드로 들어가기' }), code,
+      h('button', { class: 'btn', text: '들어가기', onclick: () => joinCode(code.value.trim().toLowerCase()) }));
+    const listBox = h('div', { class: 'panel' }, h('h3', { text: '지금 열린 방' }), h('div', { class: 'tables-list', id: 'fList' }));
+    el.append(h('div', { class: 'side' }, make, joinBox, listBox),
+      h('p', { class: 'note', style: 'margin-top:14px', text: '친구를 부르려면 이 카지노의 공유 메뉴에서 친구를 초대하고 권한을 "사용 가능" 이상으로 주세요. 보기 전용 권한으로는 테이블에 앉을 수 없어요.' }));
+    renderList();
+  }
+  function hosts() {
+    if (!lobby) return [];
+    return lobby.peers().filter((p) => p.presence && p.presence.host && typeof p.presence.host.code === 'string' && !(p.isMe && p.sameTab));
+  }
+  async function renderList() {
+    const box = $('#fList'); if (!box) return;
+    box.innerHTML = '';
+    const hs = hosts();
+    if (!hs.length) { box.append(h('p', { class: 'note', text: '열린 방이 아직 없어요. 친구가 방을 만들면 여기 나타나요.' })); return; }
+    const names = user ? await user.profiles(hs.map((p) => p.by).filter(Boolean)) : {};
+    for (const p of hs) {
+      const ho = p.presence.host, g = A.GAMES[ho.game] ? ho.game : 'holdem';
+      const nm = (p.by && names[p.by] && names[p.by].name) || '친구';
+      box.append(h('div', { class: 'trow' },
+        h('div', null, h('b', { text: A.GAMES[g].name }), ' · ', nm + '의 방 · ', h('span', { class: 'code', text: String(ho.code).slice(0, 6) })),
+        h('button', { class: 'btn small gold', text: '앉기', onclick: () => join(String(ho.code).slice(0, 6), p.peer, g) })));
+    }
+  }
+  function joinCode(code) {
+    if (!/^[a-z0-9]{4,6}$/.test(code)) return A.toast('방 코드를 확인해 주세요.');
+    const p = hosts().find((x) => x.presence.host.code === code);
+    if (!p) return A.toast('그 코드의 방을 찾지 못했어요. 방장이 방을 열어 두었는지 확인해 주세요.');
+    join(code, p.peer, p.presence.host.game);
+  }
+
+  // ════════ 공통 ════════
+  function base(mode, game, code) {
+    return {
+      mode, game, code, T: Object.assign({}, MT[game], { name: '' }), bubble: null, sel: { discard: -1, open: -1 }, chooser: null, raiseTo: 0, bet: MT[game].minBet || 0,
+      names: {}, timerI: null
+    };
+  }
+  async function resolveNames(K, uids) {
+    if (!user) return;
+    const ids = uids.filter(Boolean);
+    if (!ids.length) return;
+    const ps = await user.profiles(ids);
+    let changed = false;
+    for (const id of ids) { const n = ps[id] && ps[id].name; if (n && K.names[id] !== n) { K.names[id] = n; changed = true; } }
+    if (changed && A.S === K) A.renderTable();
+  }
+  function seatNames(K, v, meta) {
+    const out = {};
+    v.seats.forEach((s, i) => { const m = meta && meta[i]; if (m && m.uid) out[i] = K.names[m.uid] || (m.kind === 'host' ? '방장' : '친구'); });
+    return out;
+  }
+  function timerText(deadline) {
+    if (!deadline) return '';
+    const s = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    return '(' + s + '초)';
+  }
+  // 보이는 판에서 내 베팅 가능 범위 계산 (엔진의 legal과 같은 규칙)
+  function legalFromView(v, i) {
+    const s = v.seats[i];
+    if (!s || v.phase !== 'bet' || v.toAct !== i) return null;
+    const toCall = Math.max(0, v.curBet - s.bet), call = Math.min(toCall, s.stack), allTo = s.bet + s.stack;
+    let minTo = v.curBet + Math.max(v.minRaise, v.unit), maxTo = allTo;
+    if (v.game === 'seven') maxTo = Math.min(allTo, v.curBet + v.pot + toCall);
+    const canRaise = s.stack > toCall && (v.game !== 'seven' || v.raises < 4) && v.seats.some((o, k) => k !== i && !o.folded && !o.allin);
+    if (minTo > maxTo) minTo = maxTo;
+    return { toCall, call, canCheck: toCall === 0, canRaise, minTo, maxTo, allTo, pot: v.pot };
+  }
+  function bjLegalFromView(v, i) {
+    if (v.phase !== 'play' || !v.turn || v.turn.seat !== i) return null;
+    const s = v.seats[i], hd = s.hands[v.turn.hand]; if (!hd) return null;
+    const two = hd.cards.length === 2;
+    return { hit: true, stand: true, double: two && s.stack >= hd.bet, split: two && s.hands.length === 1 && C.rankOf(hd.cards[0]) === C.rankOf(hd.cards[1]) && s.stack >= hd.bet };
+  }
+
+  // ════════ 방장 ════════
+  async function host(game) {
+    const code = Math.random().toString(36).replace(/[^a-z0-9]/g, '').slice(2, 7).padEnd(5, '7');
+    let room;
+    try { room = await lobby.join('velvet-' + code); } catch (e) { return A.toast('방을 열지 못했어요. 잠시 뒤 다시 해 보세요.'); }
+    await room.presence({ role: 'host', pub, uid: myUid });
+    const K = base('host', game, code);
+    K.room = room; K.meta = []; K.queue = []; K.seq = 0; K.deadline = 0; K.sent = {};
+    const T = K.T;
+    if (game === 'blackjack') {
+      K.t = C.makeBJ({ minBet: T.minBet, maxBet: T.maxBet, seats: [{ id: 'host', name: '방장', kind: 'human', stack: T.start }] });
+      K.meta = [{ kind: 'host', uid: myUid, peer: null }];
+    } else {
+      const n = A.GAMES[game].seats, seats = [{ id: 'host', name: '방장', kind: 'human', stack: T.start }];
+      for (let k = 1; k < n; k++) seats.push(A.newAI(null, seats.map((s) => s.name), T.start));
+      K.t = C.makePoker(game, { sb: T.sb, bb: T.bb, ante: T.ante || 0, unit: T.unit, seats });
+      K.meta = seats.map((s, i) => (i === 0 ? { kind: 'host', uid: myUid, peer: null } : { kind: 'ai' }));
+    }
+    lobby.presence({ host: { code, game } }).catch(() => {});
+    K.unsubs = [
+      room.on('sit', (m) => onSit(K, m)),
+      room.on('act', (m) => onAct(K, m)),
+      room.on('choose', (m) => onChoose(K, m)),
+      room.on('bet', (m) => onBet(K, m)),
+      room.on('leave', (m) => onLeave(K, m)),
+      room.onPeers((ch) => {
+        for (const p of ch.peers) if (p.isMe && p.sameTab) K.myPeer = p.peer;
+        for (const p of ch.left) {
+          const i = K.meta.findIndex((m) => m.peer === p.peer);
+          if (i > 0) { K.meta[i].away = true; K.t.seats[i].away = true; broadcast(K); pump(K); }
+        }
+        if (ch.joined.length) broadcast(K, true);
+      })
+    ];
+    K.ctx = () => hostCtx(K);
+    K.leave = () => closeHost(K);
+    K.timerI = setInterval(() => { if (A.S === K && K.deadline) A.renderTable(); }, 1000);
+    A.S = K; A.show('scrTable');
+    A.toast('방을 열었어요. 방 코드 ' + code + '를 친구에게 알려 주세요.');
+    if (game === 'blackjack') bjBetPhase(K); else nextHand(K);
+  }
+
+  function hostCtx(K) {
+    const t = K.t;
+    if (K.game === 'blackjack') {
+      const v = C.viewBJ(t);
+      return { v, me: 0, game: 'blackjack', names: seatNames(K, v, K.meta), timer: timerText(K.deadline), canBet: (t.phase === 'bet') && !(t.seats[0].bet > 0) && t.seats[0].stack > 0,
+        addBet: (n) => { K.bet = Math.max(0, Math.min(K.T.maxBet, t.seats[0].stack, (K.bet || 0) + n)); A.renderTable(); },
+        deal: () => { if (C.bjBet(t, 0, K.bet)) { broadcast(K); maybeDeal(K); A.renderTable(); } else A.toast('베팅할 수 없는 금액이에요.'); },
+        bjAct: (type) => { if (C.bjAct(t, 0, type)) { afterBJ(K); } }, extra: hostExtra(K) };
+    }
+    const v = C.viewPoker(t);
+    v.seats[0].cards = t.seats[0].cards.slice();
+    return { v, me: 0, game: K.game, names: seatNames(K, v, K.meta), timer: timerText(K.deadline), bubbles: K.bubbles,
+      act: (type, to) => { if (t.toAct === 0 && C.act(t, 0, { type, to })) { K.raiseTo = 0; after(K); } },
+      choose: (d, o) => { if (C.choose(t, 0, d, o)) { K.sel = { discard: -1, open: -1 }; after(K); } },
+      extra: hostExtra(K) };
+  }
+  function hostExtra(K) {
+    const humans = K.meta.filter((m) => m.kind === 'host' || m.kind === 'human').length;
+    return h('div', { class: 'note' }, '방 코드 ', h('b', { class: 'code', text: K.code }), ' · 사람 ' + humans + '명 앉음' + (K.queue.length ? ' · 다음 판에 ' + K.queue.length + '명 합류' : ''));
+  }
+
+  function onSit(K, m) {
+    if (m.isMe && m.sameTab) return;
+    const peer = m.peer, uid = m.by || null;
+    const peerInfo = K.room.peers().find((p) => p.peer === peer);
+    const pk = peerInfo && peerInfo.presence && peerInfo.presence.pub;
+    // 같은 사람이 다시 들어오면 자리를 돌려준다
+    let i = K.meta.findIndex((x) => x.kind === 'human' && ((uid && x.uid === uid) || x.peer === peer));
+    if (i > 0) {
+      K.meta[i].peer = peer; K.meta[i].away = false; K.t.seats[i].away = false; K.meta[i].pub = pk; K.meta[i].key = null; K.sent[i] = null;
+      broadcast(K, true); return;
+    }
+    if (K.queue.some((q) => q.peer === peer)) return;
+    K.queue.push({ peer, uid, pub: pk });
+    if (K.game === 'blackjack' && (K.t.phase === 'bet' || K.t.phase === 'done')) seatQueued(K);
+    else if (K.t.phase === 'idle' || K.t.phase === 'done') seatQueued(K);
+    broadcast(K, true);
+    resolveNames(K, [uid]);
+  }
+  function seatQueued(K) {
+    while (K.queue.length) {
+      const q = K.queue[0];
+      if (K.game === 'blackjack') {
+        if (K.t.seats.length >= 5) break;
+        K.t.seats.push({ id: 'p' + K.t.seats.length, name: '친구', kind: 'human', stack: K.T.start, bet: 0, hands: [], away: false });
+        K.meta.push({ kind: 'human', uid: q.uid, peer: q.peer, pub: q.pub });
+      } else {
+        const i = K.meta.findIndex((m, k) => k > 0 && (m.kind === 'ai' || (m.kind === 'human' && m.gone)));
+        if (i < 0) break;
+        Object.assign(K.t.seats[i], { id: 'p' + i, name: '친구', kind: 'human', persona: null, stack: K.T.start, away: false, drunk: 0 });
+        K.meta[i] = { kind: 'human', uid: q.uid, peer: q.peer, pub: q.pub };
+      }
+      K.queue.shift();
+    }
+  }
+  function seatOf(K, m) { return K.meta.findIndex((x) => x.kind === 'human' && x.peer === m.peer); }
+
+  function onAct(K, m) {
+    const i = seatOf(K, m), t = K.t, d = m.data || {};
+    if (i < 0 || K.game === 'blackjack') {
+      if (i >= 0 && K.game === 'blackjack' && t.turn && t.turn.seat === i && ['hit', 'stand', 'double', 'split'].includes(d.type)) { if (C.bjAct(t, i, d.type)) afterBJ(K); }
+      return;
+    }
+    if (t.toAct !== i || d.hand !== t.handNo) return;
+    if (!['fold', 'check', 'call', 'raise'].includes(d.type)) return;
+    if (C.act(t, i, { type: d.type, to: Number(d.to) || 0 })) after(K);
+  }
+  function onChoose(K, m) {
+    const i = seatOf(K, m), d = m.data || {};
+    if (i < 0 || K.t.phase !== 'choose' || d.hand !== K.t.handNo) return;
+    if (C.choose(K.t, i, Number(d.d), Number(d.o))) after(K);
+  }
+  function onBet(K, m) {
+    const i = seatOf(K, m), d = m.data || {};
+    if (i < 0 || K.game !== 'blackjack' || K.t.phase !== 'bet') return;
+    if (C.bjBet(K.t, i, Number(d.amt))) { broadcast(K); maybeDeal(K); }
+  }
+  function onLeave(K, m) {
+    const i = seatOf(K, m); if (i < 0) return;
+    K.meta[i].gone = true; K.meta[i].away = true; K.t.seats[i].away = true;
+    broadcast(K); pump(K);
+  }
+
+  // 판 진행 (포커)
+  function nextHand(K) {
+    const t = K.t;
+    clearTimeout(K.timer);
+    // 나간 사람 자리는 AI로, 칩이 떨어진 자리는 다시 채운다
+    K.meta.forEach((m, i) => {
+      if (i === 0) return;
+      if (m.kind === 'human' && m.gone) { const ai = A.newAI(null, t.seats.map((s) => s.name), K.T.start); Object.assign(t.seats[i], ai, { away: false }); K.meta[i] = { kind: 'ai' }; }
+      if (t.seats[i].stack <= 0) t.seats[i].stack = K.T.start;
+    });
+    seatQueued(K);
+    if (t.seats[0].stack <= 0) t.seats[0].stack = K.T.start;
+    t.rig = {};
+    C.newHand(t);
+    if (t.phase === 'choose') for (const i of C.inHand(t)) if (K.meta[i].kind === 'ai') C.aiChoose(t, i);
+    K.sent = {};
+    after(K);
+  }
+  function after(K) {
+    broadcast(K); pump(K); if (A.S === K) A.renderTable();
+  }
+  function pump(K) {
+    const t = K.t;
+    clearTimeout(K.timer); K.deadline = 0;
+    if (K.game === 'blackjack') return bjPump(K);
+    if (t.phase === 'done') { K.deadline = Date.now() + NEXT_MS; K.timer = setTimeout(() => nextHand(K), NEXT_MS); broadcast(K); return; }
+    if (t.phase === 'choose') {
+      K.deadline = Date.now() + TURN_MS;
+      K.timer = setTimeout(() => { for (const i of C.inHand(t)) if (!t.seats[i].chosen) C.aiChoose(t, i); after(K); }, TURN_MS);
+      return;
+    }
+    if (t.phase !== 'bet') return;
+    const i = t.toAct, m = K.meta[i];
+    if (m.kind === 'ai') {
+      K.timer = setTimeout(() => {
+        const ok = C.aiAct(t, i); if (!ok) C.act(t, i, { type: 'fold' });
+        K.bubbles = { [i]: t.lastAct ? t.lastAct.text : '' };
+        setTimeout(() => { K.bubbles = null; if (A.S === K) A.renderTable(); }, 2000);
+        after(K);
+      }, 700 + Math.random() * 500);
+      return;
+    }
+    const wait = m.away ? 3000 : TURN_MS;
+    K.deadline = Date.now() + wait;
+    K.timer = setTimeout(() => { const L = C.legal(t, i); if (L) { C.act(t, i, { type: L.canCheck ? 'check' : 'fold' }); after(K); } }, wait);
+  }
+
+  // 블랙잭 진행
+  function bjBetPhase(K) {
+    const t = K.t;
+    clearTimeout(K.timer);
+    K.meta.forEach((m, i) => { if (m.gone) { t.seats[i].away = true; } });
+    seatQueued(K);
+    for (const s of t.seats) { if (s.stack <= 0) s.stack = K.T.start; s.bet = 0; s.hands = []; }
+    t.phase = 'bet'; t.dealer = { cards: [], hide: true };
+    K.deadline = Date.now() + BET_MS;
+    K.timer = setTimeout(() => { if (t.seats.some((s) => s.bet > 0)) deal(K); else bjBetPhase(K); }, BET_MS);
+    after(K);
+  }
+  function maybeDeal(K) {
+    const t = K.t;
+    const present = t.seats.filter((s, i) => !K.meta[i].away && !K.meta[i].gone);
+    if (present.length && present.every((s) => s.bet > 0)) deal(K);
+  }
+  function deal(K) {
+    clearTimeout(K.timer);
+    if (!C.bjDeal(K.t)) return bjBetPhase(K);
+    K.sent = {};
+    afterBJ(K);
+  }
+  function afterBJ(K) { broadcast(K); bjPump(K); if (A.S === K) A.renderTable(); }
+  function bjPump(K) {
+    const t = K.t;
+    clearTimeout(K.timer); K.deadline = 0;
+    if (t.phase === 'done') { K.deadline = Date.now() + NEXT_MS; K.timer = setTimeout(() => bjBetPhase(K), NEXT_MS); broadcast(K); return; }
+    if (t.phase === 'bet') { K.deadline = Date.now() + BET_MS; return; }
+    if (t.phase !== 'play' || !t.turn) return;
+    const i = t.turn.seat, m = K.meta[i];
+    const wait = m.away ? 3000 : TURN_MS;
+    K.deadline = Date.now() + wait;
+    K.timer = setTimeout(() => { if (t.turn && t.turn.seat === i) { C.bjAct(t, i, 'stand'); afterBJ(K); } }, wait);
+  }
+
+  // 모두에게 판 상태 보내기 + 각자에게 숨은 카드 보내기
+  async function broadcast(K, force) {
+    const t = K.t;
+    const v = K.game === 'blackjack' ? C.viewBJ(t) : C.viewPoker(t);
+    if (v.log) v.log = v.log.slice(-5);
+    const meta = K.meta.map((m) => ({ kind: m.kind, uid: m.uid || null, peer: m.peer || null }));
+    const msg = { seq: ++K.seq, v, meta, deadline: K.deadline, queue: K.queue.map((q) => q.peer) };
+    K.room.emit('state', msg).catch(() => {});
+    if (K.game === 'blackjack') return;
+    for (let i = 1; i < K.meta.length; i++) {
+      const m = K.meta[i];
+      if (m.kind !== 'human' || m.away) continue;
+      if (!m.pub) { const pp = K.room.peers().find((p) => p.peer === m.peer); if (pp && pp.presence && pp.presence.pub) m.pub = pp.presence.pub; else continue; }
+      const cards = t.seats[i].cards;
+      const sig = t.handNo + ':' + cards.join(',');
+      if (!force && K.sent[i] === sig) continue;
+      try {
+        if (!m.key) m.key = await derive(m.pub);
+        const box = await enc(m.key, { hand: t.handNo, cards });
+        K.sent[i] = sig;
+        K.room.emit('priv', Object.assign({ seat: i, hand: t.handNo }, box)).catch(() => {});
+      } catch (e) { /* 키 문제: 다음 기회에 다시 */ }
+    }
+  }
+  function closeHost(K) {
+    clearTimeout(K.timer); clearInterval(K.timerI);
+    try { K.room.emit('end', {}); } catch (e) { /* 이미 끊김 */ }
+    (K.unsubs || []).forEach((u) => { try { u(); } catch (e) { /* 무시 */ } });
+    setTimeout(() => { K.room.leave().catch(() => {}); }, 300);
+    lobby.presence({ host: null }).catch(() => {});
+  }
+
+  // ════════ 손님 ════════
+  async function join(code, hostLobbyPeer, game) {
+    let room;
+    try { room = await lobby.join('velvet-' + code); } catch (e) { return A.toast('방에 들어가지 못했어요.'); }
+    await room.presence({ role: 'player', pub, uid: myUid });
+    const K = base('client', game, code);
+    K.room = room; K.v = null; K.meta = []; K.mine = []; K.mineHand = -1; K.key = null; K.hostPeer = null; K.seq = 0;
+    K.unsubs = [
+      room.on('state', (m) => {
+        if (!isHost(K, m)) return;
+        const d = m.data || {};
+        if (!d.v || (d.seq && d.seq < K.seq)) return;
+        K.seq = d.seq || 0; K.v = d.v; K.meta = d.meta || []; K.deadline = d.deadline || 0; K.queued = (d.queue || []).includes(K.myPeer);
+        if (K.v.handNo !== K.mineHand) K.mine = [];
+        resolveNames(K, K.meta.map((x) => x.uid));
+        if (A.S === K) A.renderTable();
+      }),
+      room.on('priv', async (m) => {
+        if (!isHost(K, m)) return;
+        const d = m.data || {};
+        if (d.seat !== mySeat(K)) return;
+        try {
+          if (!K.key) { const hp = room.peers().find((p) => p.peer === m.peer); if (!hp || !hp.presence.pub) return; K.key = await derive(hp.presence.pub); }
+          const o = await dec(K.key, d);
+          K.mine = o.cards; K.mineHand = o.hand;
+          if (A.S === K) A.renderTable();
+        } catch (e) { /* 다른 사람 몫이거나 깨진 메시지 */ }
+      }),
+      room.on('end', (m) => { if (isHost(K, m)) hostGone(K); }),
+      room.onPeers((ch) => {
+        for (const p of ch.peers) if (p.isMe && p.sameTab) K.myPeer = p.peer;
+        if (K.hostPeer && ch.left.some((p) => p.peer === K.hostPeer)) hostGone(K);
+      })
+    ];
+    K.hostLobbyPeer = hostLobbyPeer;
+    K.ctx = () => clientCtx(K);
+    K.leave = () => { room.emit('leave', {}).catch(() => {}); cleanup(K); };
+    K.timerI = setInterval(() => { if (A.S === K && K.deadline) A.renderTable(); }, 1000);
+    A.S = K; A.show('scrTable'); A.renderTable();
+    // 방장이 누구인지: 이 방에서 role이 host인 사람
+    const findHost = () => { const hp = room.peers().find((p) => p.presence && p.presence.role === 'host' && !p.isMe); if (hp) K.hostPeer = hp.peer; return hp; };
+    let tries = 0;
+    const askSeat = () => {
+      if (A.S !== K) return;
+      if (findHost()) { room.emit('sit', {}).catch(() => {}); return; }
+      if (++tries > 12) { hostGone(K, '방장을 찾지 못했어요.'); return; }
+      setTimeout(askSeat, 800);
+    };
+    askSeat();
+  }
+  function isHost(K, m) {
+    if (!K.hostPeer) { const hp = K.room.peers().find((p) => p.presence && p.presence.role === 'host' && !p.isMe); if (hp) K.hostPeer = hp.peer; }
+    return !!K.hostPeer && m.peer === K.hostPeer;
+  }
+  function mySeat(K) { return K.meta.findIndex((m) => m.kind === 'human' && m.peer === K.myPeer); }
+  function cleanup(K) {
+    clearInterval(K.timerI);
+    (K.unsubs || []).forEach((u) => { try { u(); } catch (e) { /* 무시 */ } });
+    setTimeout(() => { K.room.leave().catch(() => {}); }, 300);
+  }
+  function hostGone(K, why) {
+    if (A.S !== K) return;
+    cleanup(K); A.S = null;
+    A.dialog('테이블이 닫혔어요', [h('p', { class: 'sub', text: why || '방장이 테이블을 떠났어요. 친구 테이블 칩은 지갑과 상관없으니 잃은 건 없어요.' }),
+      h('div', { class: 'row' }, h('button', { class: 'btn gold', text: '로비로', onclick: () => { A.closeDialog(); A.show('scrLobby'); A.renderLobby(); } }))], false);
+  }
+  function clientCtx(K) {
+    const v = K.v;
+    if (!v) return { v: K.game === 'blackjack' ? { kind: 'bj', phase: 'bet', seats: [], dealer: { cards: [] }, log: [], shoeLeft: 0 } : { game: K.game, seats: [], board: [], pot: 0, phase: 'idle', log: [] }, me: 0, game: K.game, spectate: true, waitingHost: '방장과 연결하는 중이에요…' };
+    let me = mySeat(K);
+    const names = seatNames(K, v, K.meta);
+    if (me < 0) {
+      // 아직 자리가 없으면 관전
+      const vv = JSON.parse(JSON.stringify(v));
+      return { v: vv, me: 0, game: K.game, names, waitingHost: K.queued ? '다음 판부터 자리에 앉아요. 지금은 구경 중이에요.' : '자리를 요청하는 중이에요…', spectate: true };
+    }
+    if (K.game === 'blackjack') {
+      return { v, me, game: 'blackjack', names, timer: timerText(K.deadline), canBet: v.phase === 'bet' && !(v.seats[me].bet > 0),
+        bjLegal: () => bjLegalFromView(v, me),
+        bjAct: (type) => K.room.emit('act', { type }).catch(() => {}),
+        addBet: (n) => { K.bet = Math.max(0, Math.min(K.T.maxBet, v.seats[me].stack, (K.bet || 0) + n)); A.renderTable(); },
+        deal: () => K.room.emit('bet', { amt: K.bet }).catch(() => {}) };
+    }
+    const vv = JSON.parse(JSON.stringify(v));
+    const mine = K.mineHand === v.handNo && K.mine.length ? K.mine : null;
+    if (mine) vv.seats[me].cards = mine.slice();
+    return { v: vv, me, game: K.game, names, mine: mine || vv.seats[me].cards, timer: timerText(K.deadline), bubbles: v.lastAct && v.phase === 'bet' ? { [v.lastAct.seat]: v.lastAct.text } : null,
+      legal: () => legalFromView(v, me),
+      act: (type, to) => { K.room.emit('act', { type, to, hand: v.handNo }).catch(() => {}); },
+      choose: (d, o) => { K.room.emit('choose', { d, o, hand: v.handNo }).catch(() => {}); K.sel = { discard: -1, open: -1 }; } };
+  }
+
+  return { open, legalFromView };
+})();
+window.Friends = Friends;
+</script>
+<script>App.boot();</script>
+</body>
+</html>
