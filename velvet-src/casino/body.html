@@ -1,0 +1,32 @@
+<div id="door">
+  <div class="door-panel l"></div><div class="door-panel r"></div>
+  <div class="sign">
+    <div class="dress">Est. 1926 · Dress code: smart</div>
+    <div class="deco">VELVET</div>
+    <div class="ko">벨벳 카지노</div>
+    <div class="rule" aria-hidden="true"></div>
+    <p id="doorNote">홀덤, 세븐 포커, 블랙잭. 매일 아침 6시, 칩이 100 이하면 100칩까지 채워 드립니다.</p>
+    <button class="btn gold" id="enter">입장하기</button>
+  </div>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div class="topbar">
+    <span class="brand">VELVET</span>
+    <span class="stat"><span class="chip-ico"></span>칩 <b id="wChips">0</b></span>
+    <span class="stat" id="wVaultBox" hidden>금고 <b id="wVault">0</b></span>
+    <span class="stat" title="속임수 아이템을 쓸수록 올라가요. 100이 되면 오늘 하루 쫓겨나요.">의심 <span class="sus"><i id="wSus" style="width:0%"></i></span><b id="wSusN">0</b></span>
+    <span class="title-badge" id="wTitle" hidden></span>
+    <span class="stat" id="wSave"></span>
+    <button class="btn small" id="toLobby" hidden>로비로</button>
+    <button class="btn small" id="wLogout" hidden>로그아웃</button>
+  </div>
+  <section id="scrLobby"></section>
+  <section id="scrTable" hidden></section>
+  <section id="scrShop" hidden></section>
+  <section id="scrFriends" hidden></section>
+  <section id="scrPlus" hidden></section>
+</div>
+
+<div class="overlay" id="ov" hidden><div class="dialog" id="ovBox" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
