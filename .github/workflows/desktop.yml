@@ -1,0 +1,49 @@
+name: desktop-exe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/desktop.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: 'desktop/src-tauri -> target'
+
+      - name: Build installer
+        working-directory: desktop
+        run: npx --yes @tauri-apps/cli@2.12.4 build
+
+      - name: Read version
+        id: ver
+        shell: bash
+        run: echo "v=$(node -p "require('./desktop/src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop-v${{ steps.ver.outputs.v }}
+          name: 벨벳 카지노 데스크톱 ${{ steps.ver.outputs.v }}
+          body: |
+            Windows 설치 파일이에요. 아래 `Velvet Casino_..._x64-setup.exe` 를 받아서 실행하세요.
+            처음 실행 때 "Windows의 PC 보호"가 뜨면 "추가 정보 → 실행"을 누르세요.
+            게임 업데이트는 자동으로 반영돼요. 이 파일은 프로그램 자체가 바뀔 때만 새로 받으면 돼요.
+          files: desktop/src-tauri/target/release/bundle/nsis/*.exe
+          overwrite_files: true

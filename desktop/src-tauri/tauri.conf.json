@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Velvet Casino",
+  "mainBinaryName": "VelvetCasino",
+  "version": "1.0.0",
+  "identifier": "com.yh20507.velvetcasino",
+  "build": {
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "벨벳 카지노",
+        "url": "https://yh20507.github.io/yh20507/velvet/",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 420,
+        "minHeight": 600,
+        "center": true,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "yh20507",
+    "shortDescription": "벨벳 카지노",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["Korean"],
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  }
+}

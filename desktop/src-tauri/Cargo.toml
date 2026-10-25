@@ -1,0 +1,17 @@
+[package]
+name = "velvet-casino"
+version = "1.0.0"
+description = "벨벳 카지노 데스크톱"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
