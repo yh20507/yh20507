@@ -44,6 +44,19 @@ velvet-src/HANDOFF.md 를 먼저 읽어 줘. 나는 코딩을 잘 몰라. 설명
 - 바: 노엘 그림(옷장 노엘 의상 반영), 축제 동안만 루나(기본 바텐더 복장, 첫 방문 오프닝, 수다·소문, 단서는 노엘만)
 - 끝나면: 배너·팝업·솥·사탕 획득 사라짐, 의상·칭호 남음, 남은 사탕 2개=1칩(첫 로비 안내, 옷장에서도 가능)
 
+## 다음 이벤트부터 바꿀 것 (확정)
+- 초레어 천장: 초레어 없이 300번(사탕 3만) 뽑으면 다음은 초레어 확정. 받을 초레어는 플레이어가 직접 고름
+  (이미 다 가졌으면 페이백). 화면에 "초레어 확정까지 N번" 표시
+  이유: 0.05%만으로는 1,000번(사탕 10만)을 써도 약 61%가 하나도 못 받음 (2026-10-25 시뮬)
+- 이번 할로윈(~11/8)은 확률·천장 그대로 둠
+
+## 그림 (데스크톱에서 ComfyUI, Z-Image-Turbo, steps 8 정도)
+- 화풍: detailed pixel art, high resolution pixel art, painterly pixel shading (8-bit 느낌 아님, 그림과 도트 중간)
+- 배경은 단색으로 뽑기(투명은 Claude가 처리). 할로윈 그림 원본: 다운로드\새 폴더\벨벳
+- 루나 외모 고정: adult woman, 25 years old, long dark hair with purple highlights, amber eyes, beauty mark under eye (시드 고정)
+  루나 그림은 1024×1216, 쟁반에 칵테일 든 자세, 연회색 단색 배경으로 통일
+- 다 뽑으면 데스크톱에서 연결된 폴더에 넣고 새 대화에서 알려 주기
+
 ## 다른 프로젝트
 - 판타지 RPG 기획서: https://claude.ai/artifact/K7sHffDuK2y3trbfkRzrQ9
 - 데스크톱 게임 런처: 다운로드\새 폴더\게임런처\게임런처 (app\config.json 으로 설정)
