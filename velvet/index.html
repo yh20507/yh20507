@@ -578,6 +578,20 @@ html.hw-tb .felt, html.hw-tb .pfelt, html.hw-tb #scrTable.under .felt, html.hw-t
 .hw-ev b { font-size: 14.5px; display: block; } .hw-ev small { font-size: 12px; color: var(--muted); }
 .hw-select { background: #120d0b; color: var(--ivory); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; font: 14px var(--f-body); width: 100%; }
 
+/* 초레어 예고: 붉은 솥, 꺼지는 불 */
+.hw-cauldron.omen { z-index: 81; box-shadow: 0 0 60px 12px rgba(255,30,60,.4); }
+.hw-cauldron.omen::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: color;
+  background: radial-gradient(ellipse 36% 30% at 50% 44%, rgba(255,16,40,1), rgba(255,16,40,0) 100%); animation: hwGlow .6s ease-in forwards; }
+.hw-cauldron.omen.brew::after { background: radial-gradient(circle at 50% 46%, rgba(255,40,70,.8), transparent 48%); }
+.hw-cauldron.omen .bub { background: #ff3b55; box-shadow: 0 0 8px #ff2040; }
+.hw-omen { position: fixed; inset: 0; z-index: 80; background: #000; pointer-events: none; opacity: 0; animation: hwLights 2.3s linear forwards; }
+@keyframes hwLights { 0% { opacity: 0; } 6% { opacity: .95; } 11% { opacity: .2; } 15% { opacity: .95; } 19% { opacity: .5; } 24%, 100% { opacity: .86; } }
+.hw-ultbtn { justify-self: start; box-shadow: 0 0 16px rgba(255,77,109,.45); }
+.hw-ultnote { color: #ff9aac; }
+.hw-thumb.s-ico.ult { color: var(--g-u); }
+.hw-ultpick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.hw-ultpick .hw-cos { grid-template-rows: 110px auto auto; }
+
 /* 뽑기 결과 */
 .hw-pull { position: fixed; inset: 0; z-index: 85; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px; overflow-y: auto;
   background: radial-gradient(circle at 50% 45%, rgba(60,24,90,.92), rgba(6,3,10,.96) 70%); animation: fadein .25s; }
@@ -4126,7 +4140,7 @@ const Plus = (() => {
   }
   const PASSIVE = {
     glasses: ['금테 안경', '포커에서 AI의 자신감이 보여요. (영구)'], shadow: ['그림자 딜러', '블랙잭에서 15% 확률로 딜러의 엎은 카드가 비쳐요. (영구)'],
-    banker: ['은행가의 열쇠', '금고에 하루 2% 이자. (영구, 금고 필요)'], blackchip: ['검은 칩', '쓸 곳이 없는 이상한 칩. 13번 테이블…?'],
+    banker: ['은행가의 열쇠', '금고에 하루 2% 이자. (영구, 금고 필요)'], blackchip: ['검은 칩', '차갑고 무거운 칩. 많이 쥘수록 무언가가 가까워지는 기분이에요. 13번 테이블…?'],
     box: ['봉인된 상자', '열어 보기 전엔 몰라요.'], bribe: ['뇌물 봉투', '의심을 0으로. 대신 3일 동안 의심이 1.5배로 올라요.'],
     contract: ['악마의 계약서', '서명하면 24시간 동안 이긴 칩 2배. 끝나면 번 칩의 30%를 가져가고, 다음 날 아침 지급이 없어요.'],
     coin: ['행운의 동전', '켜면 7일 동안, 질 때 10% 확률로 잃은 칩을 돌려받아요.'], fan: ['마담의 부채', '켜면 7일 동안, 내가 올리면 AI가 더 잘 접어요.']
@@ -5012,7 +5026,7 @@ window.Plus = Plus;
     watch: { name: '도박사의 회중시계', grade: 'legend', base: 2000, item: 3, w: 5, desc: '방금 진 판을 없던 일로. 세 번. 쓸 때마다 의심 +30.' },
     bottom: { name: '밑장 빼기', grade: 'legend', base: 3000, item: 1, w: 4, desc: '포카드 이상(섯다는 장땡 이상, 블랙잭은 블랙잭) 보장. 의심 +99.' },
     banker: { name: '은행가의 열쇠', grade: 'legend', base: 2500, inv: true, perm: true, w: 4, desc: '금고에 하루 2% 이자. 영구. 금고가 있어야 해요.' },
-    blackchip: { name: '검은 칩 한 개', grade: 'odd', base: 1313, inv: true, w: 2, desc: '쓸 곳이 없는 이상한 칩.' }
+    blackchip: { name: '검은 칩 한 개', grade: 'odd', base: 1313, inv: true, w: 4, desc: '쓸 곳이 없는 이상한 칩.' }
   };
   const owned = (id) => { const w = W(), c = CAT[id]; return c.item ? (w.items[id] || 0) > 0 : (w.inv[id] || 0) > 0; };
   function lotsToday() {
@@ -5172,12 +5186,12 @@ window.Plus = Plus;
     w.inv.box--; P.inc('box');
     const r = Math.random();
     let msg;
-    if (r < 0.35) { P.inc('boxEmpty'); msg = '…비어 있어요. 바닥에 먼지만.'; }
-    else if (r < 0.6) { const k = 200 + Math.floor(Math.random() * 18) * 100; w.chips += k; msg = '칩 ' + fmt(k) + '개가 들어 있었어요.'; }
-    else if (r < 0.75) { for (const id of ['lens', 'mirror', 'clover', 'insurance']) w.items[id] = (w.items[id] || 0) + 1; msg = '돋보기, 거울 조각, 네잎클로버, 보험 증서가 하나씩.'; }
-    else if (r < 0.87) { const id = rand(['glasses', 'fan', 'coin', 'shadow'].filter((k) => !(CAT[k].perm && owned(k)))) || 'coin'; deliver(id); msg = CAT[id].name + '이(가) 들어 있었어요!'; }
-    else if (r < 0.95) { const id = rand(['watch', 'bribe', 'banker']); deliver(id); msg = '전설 물건: ' + CAT[id].name + '!'; }
-    else if (r < 0.99) { const id = rand(['dice', 'revolver', 'contract']); deliver(id); msg = '…' + CAT[id].name + '. 손이 서늘해져요.'; }
+    if (r < 0.33) { P.inc('boxEmpty'); msg = '…비어 있어요. 바닥에 먼지만.'; }
+    else if (r < 0.58) { const k = 200 + Math.floor(Math.random() * 18) * 100; w.chips += k; msg = '칩 ' + fmt(k) + '개가 들어 있었어요.'; }
+    else if (r < 0.73) { for (const id of ['lens', 'mirror', 'clover', 'insurance']) w.items[id] = (w.items[id] || 0) + 1; msg = '돋보기, 거울 조각, 네잎클로버, 보험 증서가 하나씩.'; }
+    else if (r < 0.85) { const id = rand(['glasses', 'fan', 'coin', 'shadow'].filter((k) => !(CAT[k].perm && owned(k)))) || 'coin'; deliver(id); msg = CAT[id].name + '이(가) 들어 있었어요!'; }
+    else if (r < 0.93) { const id = rand(['watch', 'bribe', 'banker']); deliver(id); msg = '전설 물건: ' + CAT[id].name + '!'; }
+    else if (r < 0.97) { const id = rand(['dice', 'revolver', 'contract']); deliver(id); msg = '…' + CAT[id].name + '. 손이 서늘해져요.'; }
     else { deliver('blackchip'); msg = '검은 칩 한 개. 차갑고, 생각보다 무거워요.'; }
     A.save(); A.renderTop(); P.check();
     A.dialog('봉인된 상자', [h('p', { class: 'sub', text: msg }), h('div', { class: 'row' }, h('button', { class: 'btn gold', text: '확인', onclick: () => { A.closeDialog(); P.renderRoom(); } }))], false);
@@ -5186,12 +5200,14 @@ window.Plus = Plus;
   // ════════════════ 13번 테이블 ════════════════
   const T13 = {};
   function t13state() { const w = W(); const today = A.dayKey(); if (w.t13.day !== today) { w.t13.day = today; w.t13.rolls = 0; w.t13.on = false; w.t13.done = false; } return w.t13; }
+  // 접속할 때마다(하루 최대 10번) 굴린다. 검은 칩 0개 1%, 1개 3%, 그 뒤 1개마다 +1%, 모두 합쳐 최대 13%.
+  T13.chance = (n) => { if (n == null) n = W().inv.blackchip || 0; return Math.min(0.13, (n <= 0 ? 0.01 : 0.03 + (n - 1) * 0.01) + (P.eff('t13') || 0)); };
   T13.roll = () => {
     const w = W(), s = t13state(), today = A.dayKey();
     if (s.ban && s.ban > today) return;
     if (s.on || s.done || s.rolls >= 10) return;
     s.rolls++;
-    const p = (w.inv.blackchip ? 0.03 : 0.01) + (P.eff('t13') || 0);
+    const p = T13.chance();
     if (Math.random() < p) { s.on = true; P.inc('t13Seen'); }
   };
   T13.active = () => { const s = t13state(); return s.on && !s.done; };
@@ -5210,6 +5226,8 @@ window.Plus = Plus;
   }
   let G13 = null;
   function openT13() {
+    const bc = W().inv.blackchip || 0;
+    if (bc > 0) { W().inv.blackchip = 0; setTimeout(() => A.toast('주머니 속 검은 칩 ' + bc + '개가 차갑게 녹아 사라졌어요.'), 400); }
     P.inc('t13Visit'); A.save();
     const el = P.screen('13', '', 't13-screen');
     el.querySelector('.plus-head .btn').remove();
@@ -5294,7 +5312,7 @@ window.Plus = Plus;
   // ════════════════ 바 ════════════════
   const CLUES = [
     { id: 'thirteen', title: '13이라는 숫자', text: '13번이요? 이 카지노엔 12번 테이블까지밖에 없습니다. …공식적으로는요.', keys: ['13', '십삼', '테이블', '숫자'] },
-    { id: 'blackchip', title: '검은 칩', text: '검은 칩을 쥐고 온 손님이 있었죠. 그 칩을 가진 사람 앞에는 그 테이블이 더 자주 나타난다더군요.', keys: ['검은', '블랙칩', '검정 칩', '칩 색'] },
+    { id: 'blackchip', title: '검은 칩', text: '검은 칩을 쥐고 온 손님이 있었죠. 그 칩을 많이 쥔 사람일수록 그 테이블이 더 자주 나타난다더군요. 앉는 순간 칩은 녹아 없어진다지만요.', keys: ['검은', '블랙칩', '검정 칩', '칩 색'] },
     { id: 'box', title: '봉인된 상자', text: '무거운 상자는 열지 않는 게 좋습니다. 가벼운 상자는… 더더욱이요. 비어 있을 때가 많거든요.', keys: ['상자', '봉인', '경매'] },
     { id: 'yoon', title: '노신사 윤의 버릇', text: '노신사 윤은 좋은 패가 들어오면 꼭 넥타이를 만집니다. 본인만 모르죠.', keys: ['윤', '노신사', '버릇', '습관'] },
     { id: 'rose', title: '마담 로즈의 웃음', text: '마담 로즈가 웃으면 조심하세요. 그 사람은 질 때도 웃지만, 허세 부릴 때 제일 크게 웃습니다.', keys: ['로즈', '마담', '허세'] },
@@ -5452,7 +5470,7 @@ window.Plus = Plus;
     { t: '희귀품', w: 2, c: '#5a3a7a', f: () => { const n = giveAuction(RARE); return n ? '경매 희귀품 · ' + n : addChips(300); } }
   ];
   const SPECIAL = [
-    { t: '300칩', w: 22, c: '#3b2a22', f: () => addChips(300) },
+    { t: '300칩', w: 20, c: '#3b2a22', f: () => addChips(300) },
     { t: '500칩', w: 20, c: '#5a1a2c', f: () => addChips(500) },
     { t: '1,000칩', w: 16, c: '#6b4f1c', f: () => addChips(1000) },
     { t: '2,000칩', w: 8, c: '#9c7a2f', f: () => addChips(2000) },
@@ -5460,7 +5478,7 @@ window.Plus = Plus;
     { t: '전설품', w: 8, c: '#7d3fa8', f: () => { const n = giveAuction(LEGEND); return n ? '경매 전설품 · ' + n : addChips(2000); } },
     { t: '아이템 ×3', w: 8, c: '#1f4a5a', f: () => '상점 아이템 · ' + giveShop(3) },
     { t: '잭팟 5,000', w: 3, c: '#c9a14a', f: () => { P.inc('wheelJack'); return addChips(5000); } },
-    { t: '검은 칩', w: 1, c: '#0a0a0a', f: () => { P.auction.deliver('blackchip'); return '검은 칩 한 개'; } }
+    { t: '검은 칩', w: 3, c: '#0a0a0a', f: () => { P.auction.deliver('blackchip'); return '검은 칩 한 개'; } }
   ];
   const WH = { rot: 0, spinning: false, auto: false, result: null };
   const isSpecialNext = () => ((W().st.wheel || 0) + 1) % 7 === 0;
@@ -5642,7 +5660,7 @@ window.Plus = Plus;
     if (line[0] === line[1] && line[1] === line[2]) {
       const k = line[0];
       if (k === 'seven') { back = w.slot.pool + bet * 100; msg = '잭팟!!! ' + fmt(back) + '칩'; w.slot.pool = 500; jp = true; P.inc('sl777'); }
-      else if (k === 'gift') { const r = Math.random(); const n = r < 0.75 ? giveAuction(RARE) : r < 0.97 ? giveAuction(LEGEND) : (P.auction.deliver('blackchip'), '검은 칩'); msg = '🎁🎁🎁 경매장 물건: ' + (n || giveShop(3)); P.inc('slItem'); }
+      else if (k === 'gift') { const r = Math.random(); const n = r < 0.72 ? giveAuction(RARE) : r < 0.92 ? giveAuction(LEGEND) : (P.auction.deliver('blackchip'), '검은 칩'); msg = '🎁🎁🎁 경매장 물건: ' + (n || giveShop(3)); P.inc('slItem'); }
       else { back = bet * PAY3[k]; msg = PAY3[k] + '배! ' + fmt(back) + '칩'; if (k === 'cherry') P.inc('slCherry'); }
     } else if (line[0] === 'cherry' && line[1] === 'cherry') { back = bet * 2; msg = '체리 두 개 · ' + fmt(back) + '칩'; }
     else if (line[0] === 'cherry') { back = bet; msg = '체리 하나 · 본전'; }
@@ -5812,13 +5830,19 @@ const HW = (() => {
   const END = Date.parse('2026-11-08T06:00:00+09:00');
 
   function norm(w) {
-    if (w.hw && w.hw._v === 1) return w.hw;
+    if (w.hw && w.hw._v === 2) return w.hw;
     const x = Object.assign({ candy: 0, total: 0, own: {}, eq: {}, items: {}, ms: null, popDay: '', met: false, force: '', endDone: false }, w.hw || {});
     x.pity = Object.assign({ cos: 0, leg: 0 }, x.pity);
+    if (x.pity.ult == null) {
+      // 초레어 천장이 생기기 전에 뽑은 횟수도 쳐 준다 (초레어를 아직 못 받은 사람만)
+      const hasU = Object.keys(x.own).some((k) => COS_BY[k] && COS_BY[k].g === 'u');
+      x.pity.ult = hasU ? 0 : Math.min(PITY_ULT - 1, (w.st && w.st.hwPull) || 0);
+    }
+    x.ult = Math.max(0, Math.floor(Number(x.ult) || 0));   // 초레어 선택권
     x.own = Object.assign({}, x.own); x.eq = Object.assign({}, x.eq); x.items = Object.assign({}, x.items);
     x.fx = Object.assign({ basket: 0, lantern: 0, broom: 0, cloak: 0, wings: 0 }, x.fx);
     x.candy = Math.max(0, Math.floor(Number(x.candy) || 0));
-    x._v = 1;
+    x._v = 2;
     w.hw = x;
     return x;
   }
@@ -5894,23 +5918,26 @@ const HW = (() => {
   const EV_IDS = Object.keys(EV);
 
   // ───────── 마녀의 솥 (뽑기) ─────────
-  // 확률(%): 초레어 0.05 · 전설 0.3 · 희귀 1.2 · 일반 3.5 · 경매 희귀품 3 · 이벤트 소모품 19 · 상점 아이템 28 · 칩 44.95
-  const RATE = [['u', 0.05], ['l', 0.3], ['r', 1.2], ['n', 3.5], ['auc', 3], ['ev', 19], ['shop', 28]];
-  const PITY_COS = 40, PITY_LEG = 150, COST1 = 100, COST11 = 1000;
+  // 확률(%): 초레어 0.05 · 전설 0.3 · 희귀 1.2 · 일반 3.5 · 경매 희귀품 3 · 검은 칩 0.1 · 이벤트 소모품 19 · 상점 아이템 28 · 칩 44.85
+  const RATE = [['u', 0.05], ['l', 0.3], ['r', 1.2], ['n', 3.5], ['auc', 3], ['bc', 0.1], ['ev', 19], ['shop', 28]];
+  const PITY_COS = 40, PITY_LEG = 150, PITY_ULT = 300, COST1 = 100, COST11 = 1000;
   const SHOP_POOL = ['lens', 'mirror', 'cigarette', 'clover', 'slot', 'insurance', 'whiskey', 'notebook', 'pistol', 'sleeve', 'magnet'];
   const RARE = ['glasses', 'fan', 'coin', 'shadow', 'box', 'dice'];
   const pickCos = (g) => rand(COS.filter((c) => c.g === g));
   const chipAmt = () => 1 + Math.floor(Math.pow(Math.random(), 2) * 200);
-  // pity: { cos: 의상 없이 뽑은 횟수, leg: 전설 없이 뽑은 횟수 }. 초레어는 천장으로 나오지 않는다.
+  // pity: { cos: 의상 없이, leg: 전설 없이, ult: 초레어 없이 뽑은 횟수 }.
+  // 초레어 천장(300번)은 의상이 아니라 "초레어 선택권"으로 나온다. 받을 초레어는 플레이어가 고른다.
   function roll(pity, rnd = Math.random) {
-    pity.cos++; pity.leg++;
+    pity.cos++; pity.leg++; pity.ult = (pity.ult || 0) + 1;
     let g = null;
+    if (pity.ult >= PITY_ULT) { pity.cos = 0; pity.leg = 0; pity.ult = 0; return { kind: 'cos', g: 'u', pick: true }; }
     if (pity.leg >= PITY_LEG) g = 'l';
     else if (pity.cos >= PITY_COS) { const r = rnd() * 5; g = r < 3.5 ? 'n' : r < 4.7 ? 'r' : 'l'; }
     else {
       let r = rnd() * 100, kind = 'chips';
       for (const [k, p] of RATE) { if (r < p) { kind = k; break; } r -= p; }
       if (kind === 'auc') return { kind };
+      if (kind === 'bc') return { kind, id: 'blackchip' };
       if (kind === 'ev') return { kind, id: rand(EV_IDS) };
       if (kind === 'shop') return { kind, id: rand(SHOP_POOL) };
       if (kind === 'chips') return { kind, n: chipAmt() };
@@ -5918,6 +5945,7 @@ const HW = (() => {
     }
     pity.cos = 0;
     if (g === 'l' || g === 'u') pity.leg = 0;
+    if (g === 'u') pity.ult = 0;
     return { kind: 'cos', id: pickCos(g).id, g };
   }
   function grant(res) {
@@ -5929,6 +5957,8 @@ const HW = (() => {
       if (ok.length) { res.id = rand(ok); P.auction.deliver(res.id); res.name = C[res.id].name; }
       else { res.kind = 'chips'; res.n = 300; w.chips += 300; res.name = '300칩'; }
     } else if (res.kind === 'ev') { x.items[res.id] = (x.items[res.id] || 0) + 1; res.name = EV[res.id].name; }
+    else if (res.kind === 'bc') { P.auction.deliver('blackchip'); res.name = '검은 칩 한 개'; }
+    else if (res.kind === 'cos' && res.pick) { x.ult += 1; res.name = '초레어 선택권'; }
     else if (res.kind === 'cos') {
       const c = COS_BY[res.id]; res.name = c.name;
       if (x.own[res.id]) { res.dupe = GR[c.g].back; x.candy += res.dupe; P.inc('hwDupe'); }
@@ -5952,7 +5982,7 @@ const HW = (() => {
     A.save(); A.renderTop(); P.check();
     return out;
   }
-  const dispG = (r) => (r.kind === 'cos' ? r.g : r.kind === 'auc' ? 'r' : r.kind === 'ev' ? 'e' : 'n');
+  const dispG = (r) => (r.kind === 'cos' ? r.g : r.kind === 'auc' || r.kind === 'bc' ? 'r' : r.kind === 'ev' ? 'e' : 'n');
 
   // ───────── 사탕 ─────────
   function addCandy(k) {
@@ -6172,16 +6202,18 @@ const HW = (() => {
     return box;
   }
   function thumb(r) {
+    if (r.pick) return h('span', { class: 'hw-thumb s-ico ult', svg: icon('star', 46) });
     if (r.kind === 'cos') return cosThumb(r.id);
     if (r.kind === 'chips') return h('span', { class: 'hw-thumb s-ico' }, h('span', { class: 'chip-ico big' }));
     if (r.kind === 'ev') return h('span', { class: 'hw-thumb s-ico ev', svg: icon(r.id, 46) });
     return h('span', { class: 'hw-thumb s-ico', svg: A.icon(r.id, 46) });
   }
-  const KINDNAME = { chips: '칩', shop: '상점 아이템', auc: '경매 희귀품', ev: '이벤트 소모품' };
+  const KINDNAME = { chips: '칩', shop: '상점 아이템', auc: '경매 희귀품', ev: '이벤트 소모품', bc: '???' };
   function face(r) {
     const f = h('div', { class: 'hw-face g-' + dispG(r) });
-    f.append(h('small', { class: 'hw-grade', text: r.kind === 'cos' ? GR[r.g].name + ' 의상' : KINDNAME[r.kind] }), thumb(r), h('b', { text: r.name }));
-    if (r.dupe) f.append(h('em', { text: '이미 가진 의상 · 사탕 +' + r.dupe }));
+    f.append(h('small', { class: 'hw-grade', text: r.pick ? '초레어 확정' : r.kind === 'cos' ? GR[r.g].name + ' 의상' : KINDNAME[r.kind] }), thumb(r), h('b', { text: r.name }));
+    if (r.pick) f.append(h('em', { class: 'new', text: '원하는 초레어를 직접 골라요' }));
+    else if (r.dupe) f.append(h('em', { text: '이미 가진 의상 · 사탕 +' + r.dupe }));
     else if (r.kind === 'cos') f.append(h('em', { class: 'new', text: 'NEW · ' + SLOT[COS_BY[r.id].slot] }));
     return f;
   }
@@ -6197,11 +6229,49 @@ const HW = (() => {
     const res = pull(n);
     if (!res) { busy = false; return; }
     render();
-    const cz = $('.hw-cauldron'); if (cz && !reduce()) cz.classList.add('brew');
-    await sleep(reduce() ? 0 : 1100);
-    if (n === 1) await showOne(res[0]); else await showMany(res);
-    busy = false;
+    // 예고: 초레어가 들어 있으면 솥이 붉게 끓고 불이 꺼진다. 전설만 있을 때도 가끔(15%) 같은 예고가 나온다.
+    const has = (g) => res.some((r) => r.kind === 'cos' && r.g === g);
+    const omen = has('u') || (has('l') && Math.random() < 0.15);
+    const cz = $('.hw-cauldron');
+    let dark = null;
+    if (cz && !reduce()) {
+      cz.classList.add('brew');
+      if (omen) { cz.classList.add('omen'); dark = h('div', { class: 'hw-omen', 'aria-hidden': 'true' }); document.body.append(dark); heartbeat(3); await sleep(2300); }
+      else await sleep(1100);
+    }
+    try { if (n === 1) await showOne(res[0]); else await showMany(res); }
+    finally { if (dark) dark.remove(); busy = false; }
     if (P.isOn('hw')) render();
+  }
+  let actx = null;
+  function heartbeat(times) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const t0 = actx.currentTime + 0.05;
+      for (let i = 0; i < times; i++) for (const [dt, f, v] of [[0, 96, 0.8], [0.24, 78, 0.55]]) {
+        const t = t0 + i * 0.78 + dt, o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.55, t + 0.2);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + 0.26);
+      }
+    } catch (e) { /* 소리 없이 */ }
+  }
+  // 초레어 선택권 쓰기: 셋 중 하나를 고른다 (이미 가진 걸 고르면 사탕 500)
+  function chooseUlt() {
+    const x = H(); if (!(x.ult > 0)) return;
+    const list = COS.filter((c) => c.g === 'u');
+    const grid = h('div', { class: 'hw-wardrobe hw-ultpick' });
+    for (const c of list) {
+      grid.append(h('button', { class: 'hw-cos g-u', onclick: async () => {
+        if (!(H().ult > 0)) return;
+        H().ult--; A.closeDialog();
+        const r = grant({ kind: 'cos', id: c.id, g: 'u' });
+        A.save(); A.renderTop(); P.check();
+        await showOne(r, true);
+        if (P.isOn('hw')) render(); else if (P.isOn('room')) refreshCloset();
+      } }, cosThumb(c.id), h('b', { text: c.name }), h('small', { text: x.own[c.id] ? '이미 가짐 · 고르면 사탕 ' + GR.u.back : SLOT[c.slot] })));
+    }
+    A.dialog('초레어 고르기', [h('p', { class: 'sub', text: '선택권 ' + x.ult + '장. 갖고 싶은 초레어 하나를 고르세요.' }), grid]);
   }
   function overlay(cls) {
     const ov = h('div', { class: 'hw-pull ' + cls, role: 'dialog', 'aria-modal': 'true', 'aria-label': '뽑기 결과' });
@@ -6222,8 +6292,9 @@ const HW = (() => {
     return new Promise((done) => {
       const close = () => { ov.remove(); done(); };
       const row = h('div', { class: 'actions' });
-      const news = list.filter((r) => r.kind === 'cos' && !r.dupe);
-      if (news.length === 1) {
+      const news = list.filter((r) => r.kind === 'cos' && !r.dupe && !r.pick);
+      if (list.some((r) => r.pick)) row.append(h('button', { class: 'btn gold', text: '초레어 고르기', onclick: () => { close(); chooseUlt(); } }));
+      else if (news.length === 1) {
         const c = COS_BY[news[0].id];
         row.append(h('button', { class: 'btn gold', text: '바로 입기', onclick: () => { if (H().eq[c.slot] !== c.id) equip(c.id); A.toast(c.name + '을(를) 입었어요.'); close(); } }));
       } else if (news.length > 1) row.append(h('button', { class: 'btn gold', text: '옷장 열기', onclick: () => { close(); openCloset(); } }));
@@ -6233,9 +6304,9 @@ const HW = (() => {
       ov.onkeydown = (e) => { if (e.key === 'Escape') close(); };
     });
   }
-  async function showOne(r) {
+  async function showOne(r, calm) {
     const g = dispG(r), ov = overlay('one g-' + g);
-    if (g === 'u') await ultra(ov);
+    if (g === 'u' && !calm) await ultra(ov);
     const card = h('div', { class: 'hw-flip big' }, h('div', { class: 'hw-back' }), face(r));
     ov.append(h('div', { class: 'hw-burst' }), card);
     await sleep(80); card.classList.add('open');
@@ -6243,6 +6314,7 @@ const HW = (() => {
     return finish(ov, [r]);
   }
   async function showMany(list) {
+    list = list.filter((r) => dispG(r) !== 'u').concat(list.filter((r) => dispG(r) === 'u'));   // 초레어는 맨 마지막에
     const ov = overlay('many');
     const grid = h('div', { class: 'hw-grid' });
     const cards = list.map((r) => { const c = h('div', { class: 'hw-flip pre-' + dispG(r) }, h('div', { class: 'hw-back' }), face(r)); grid.append(c); return c; });
@@ -6257,17 +6329,17 @@ const HW = (() => {
       if (!skip) await sleep(g === 'l' || g === 'u' ? 750 : 240);
     }
     skipBtn.remove();
-    const news = list.filter((r) => r.kind === 'cos' && !r.dupe).length, back = list.reduce((a, r) => a + (r.dupe || 0), 0);
+    const news = list.filter((r) => r.kind === 'cos' && !r.dupe && !r.pick).length, back = list.reduce((a, r) => a + (r.dupe || 0), 0);
     ov.append(h('p', { class: 'note hw-sum', text: '새 의상 ' + news + '개' + (back ? ' · 중복 페이백 사탕 ' + back + '개' : '') }));
     return finish(ov, list);
   }
 
   // ───────── 축제 화면 ─────────
   function rateTable() {
-    const rows = [['초레어 의상', '0.05%'], ['전설 의상', '0.3%'], ['희귀 의상', '1.2%'], ['일반 의상', '3.5%'], ['경매 희귀품', '3%'], ['이벤트 소모품', '19%'], ['상점 아이템', '28%'], ['칩 1~200', '44.95%']];
+    const rows = [['초레어 의상', '0.05%'], ['전설 의상', '0.3%'], ['희귀 의상', '1.2%'], ['일반 의상', '3.5%'], ['경매 희귀품', '3%'], ['검은 칩', '0.1%'], ['이벤트 소모품', '19%'], ['상점 아이템', '28%'], ['칩 1~200', '44.85%']];
     return h('details', { class: 'panel rules-box hw-rates' }, h('summary', { text: '확률과 천장 보기' }),
       h('div', { class: 'statlist' }, ...rows.map(([a, b]) => h('div', null, h('span', { text: a }), h('b', { text: b })))),
-      h('p', { class: 'note', text: '의상 없이 ' + PITY_COS + '번 뽑으면 다음은 의상 확정, 전설 없이 ' + PITY_LEG + '번 뽑으면 전설 의상 확정이에요. 초레어는 천장으로는 나오지 않아요.' }),
+      h('p', { class: 'note', text: '의상 없이 ' + PITY_COS + '번 뽑으면 다음은 의상 확정, 전설 없이 ' + PITY_LEG + '번 뽑으면 전설 의상 확정이에요. 초레어 없이 ' + PITY_ULT + '번 뽑으면 초레어 선택권이 나와서, 셋 중 원하는 걸 직접 골라요.' }),
       h('p', { class: 'note', text: '이미 가진 의상이 또 나오면 사탕으로 돌려받아요: 일반 30 · 희귀 80 · 전설 200 · 초레어 500. 10+1은 이벤트 소모품이나 의상이 하나 이상 꼭 들어 있어요.' }));
   }
   function bagPanel(after) {
@@ -6322,7 +6394,7 @@ const HW = (() => {
   function render() {
     const x = H();
     const el = P.screen('벨벳 할로윈 축제', '이긴 판에서 번 칩 30개마다 사탕 1개. 마녀의 솥을 저어 의상과 물건을 뽑으세요. ' + until(), 'hw-screen');
-    const pityL = Math.max(1, PITY_LEG - x.pity.leg), pityC = Math.max(1, PITY_COS - x.pity.cos);
+    const pityL = Math.max(1, PITY_LEG - x.pity.leg), pityC = Math.max(1, PITY_COS - x.pity.cos), pityU = Math.max(1, PITY_ULT - x.pity.ult);
     const pot = h('div', { class: 'hw-cauldron', 'aria-hidden': 'true' }, h('img', { src: IMG('cauldron'), alt: '' }),
       ...Array.from({ length: 7 }, (_, k) => h('i', { class: 'bub', style: `--x:${32 + k * 6}%;--d:${(k * 0.37) % 1.6}s` })));
     const box = h('div', { class: 'hw-gacha' }, pot,
@@ -6331,7 +6403,9 @@ const HW = (() => {
         h('div', { class: 'actions' },
           h('button', { class: 'btn gold', disabled: busy || x.candy < COST1, onclick: () => doPull(1) }, '한 번 젓기 · 사탕 ' + COST1),
           h('button', { class: 'btn gold', disabled: busy || x.candy < COST11, onclick: () => doPull(11) }, '10+1 · 사탕 ' + fmt(COST11))),
+        x.ult > 0 && !busy ? h('button', { class: 'btn red hw-ultbtn', text: '초레어 선택권 ' + x.ult + '장 · 고르기', onclick: chooseUlt }) : null,
         h('p', { class: 'note', text: '의상 확정까지 ' + pityC + '번 · 전설 확정까지 ' + pityL + '번' }),
+        h('p', { class: 'note hw-ultnote', text: '초레어 확정까지 ' + pityU + '번' }),
         h('p', { class: 'note', text: '모은 의상 ' + ownCount(W()) + ' / ' + COS.length + ' · 지금까지 받은 사탕 ' + fmt(x.total) }),
         h('div', { class: 'row' }, h('button', { class: 'btn small', text: '옷장 열기', onclick: openCloset }))));
     el.append(box, h('div', { class: 'hw-cols' }, msPanel(), bagPanel(false)), rateTable());
@@ -6342,7 +6416,8 @@ const HW = (() => {
     const x = H(), after = !isOn();
     const prev = h('div', { class: 'panel hw-closet-top' }, portrait(88, { force: true }),
       h('div', null, h('h3', { text: '옷장' }), h('p', { class: 'note', text: '할로윈 의상은 축제가 끝나도 여기 남아요. 누르면 입고, 다시 누르면 벗어요. 모은 의상 ' + ownCount(W()) + ' / ' + COS.length }),
-        isOn() ? h('button', { class: 'btn small gold', text: '마녀의 솥으로', onclick: open }) : null));
+        isOn() ? h('button', { class: 'btn small gold', text: '마녀의 솥으로', onclick: open }) : null,
+        x.ult > 0 ? h('button', { class: 'btn small red', text: '초레어 선택권 ' + x.ult + '장 · 고르기', onclick: chooseUlt }) : null));
     body.append(prev);
     if (after && x.candy > 0) {
       const k = Math.floor(x.candy / 2);
@@ -6568,7 +6643,7 @@ const HW = (() => {
     x.candy = Math.max(0, Math.floor(Number(v('hwCandyIn').value) || 0));
     if (v('hwAll').checked) for (const c of COS) x.own[c.id] = x.own[c.id] || 1;
     if (v('hwMet').checked) x.met = false;
-    if (v('hwPity').checked) x.pity = { cos: 0, leg: 0 };
+    if (v('hwPity').checked) x.pity = { cos: 0, leg: 0, ult: 0 };
     if (v('hwEnd').checked) x.endDone = false;
     popShown = false;
     apply(); A.renderTop();
@@ -6580,7 +6655,7 @@ const HW = (() => {
   door();
 
   return {
-    isOn, isOver, START, END, COS, COS_BY, EV, GR, RATE, PITY_COS, PITY_LEG, roll, pull, grant, addCandy, missions, claim, MS,
+    isOn, isOver, START, END, COS, COS_BY, EV, GR, RATE, PITY_COS, PITY_LEG, PITY_ULT, chooseUlt, roll, pull, grant, addCandy, missions, claim, MS,
     open, render, closet, equip, apply, top, portrait, playFx, openDoor, barScene, needIntro, intro, lunaGreet, lunaTalk,
     adminRows, adminApply, exchange, endCheck, useEv, H, norm
   };

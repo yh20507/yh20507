@@ -39,7 +39,7 @@
     { t: '희귀품', w: 2, c: '#5a3a7a', f: () => { const n = giveAuction(RARE); return n ? '경매 희귀품 · ' + n : addChips(300); } }
   ];
   const SPECIAL = [
-    { t: '300칩', w: 22, c: '#3b2a22', f: () => addChips(300) },
+    { t: '300칩', w: 20, c: '#3b2a22', f: () => addChips(300) },
     { t: '500칩', w: 20, c: '#5a1a2c', f: () => addChips(500) },
     { t: '1,000칩', w: 16, c: '#6b4f1c', f: () => addChips(1000) },
     { t: '2,000칩', w: 8, c: '#9c7a2f', f: () => addChips(2000) },
@@ -47,7 +47,7 @@
     { t: '전설품', w: 8, c: '#7d3fa8', f: () => { const n = giveAuction(LEGEND); return n ? '경매 전설품 · ' + n : addChips(2000); } },
     { t: '아이템 ×3', w: 8, c: '#1f4a5a', f: () => '상점 아이템 · ' + giveShop(3) },
     { t: '잭팟 5,000', w: 3, c: '#c9a14a', f: () => { P.inc('wheelJack'); return addChips(5000); } },
-    { t: '검은 칩', w: 1, c: '#0a0a0a', f: () => { P.auction.deliver('blackchip'); return '검은 칩 한 개'; } }
+    { t: '검은 칩', w: 3, c: '#0a0a0a', f: () => { P.auction.deliver('blackchip'); return '검은 칩 한 개'; } }
   ];
   const WH = { rot: 0, spinning: false, auto: false, result: null };
   const isSpecialNext = () => ((W().st.wheel || 0) + 1) % 7 === 0;
@@ -229,7 +229,7 @@
     if (line[0] === line[1] && line[1] === line[2]) {
       const k = line[0];
       if (k === 'seven') { back = w.slot.pool + bet * 100; msg = '잭팟!!! ' + fmt(back) + '칩'; w.slot.pool = 500; jp = true; P.inc('sl777'); }
-      else if (k === 'gift') { const r = Math.random(); const n = r < 0.75 ? giveAuction(RARE) : r < 0.97 ? giveAuction(LEGEND) : (P.auction.deliver('blackchip'), '검은 칩'); msg = '🎁🎁🎁 경매장 물건: ' + (n || giveShop(3)); P.inc('slItem'); }
+      else if (k === 'gift') { const r = Math.random(); const n = r < 0.72 ? giveAuction(RARE) : r < 0.92 ? giveAuction(LEGEND) : (P.auction.deliver('blackchip'), '검은 칩'); msg = '🎁🎁🎁 경매장 물건: ' + (n || giveShop(3)); P.inc('slItem'); }
       else { back = bet * PAY3[k]; msg = PAY3[k] + '배! ' + fmt(back) + '칩'; if (k === 'cherry') P.inc('slCherry'); }
     } else if (line[0] === 'cherry' && line[1] === 'cherry') { back = bet * 2; msg = '체리 두 개 · ' + fmt(back) + '칩'; }
     else if (line[0] === 'cherry') { back = bet; msg = '체리 하나 · 본전'; }

@@ -63,13 +63,13 @@ check('wings +10% of 100 back', (await p.evaluate(()=>App.W.data.chips))-ch0===1
 // 과제
 const ms=await p.evaluate(()=>HW.missions().list.map(q=>q.id));check('3 missions', ms.length===3);
 // 확률·천장 (화면 밖 계산)
-const sim=await p.evaluate(()=>{const pity={cos:0,leg:0};const N=400000;const c={};let gapC=0,gapL=0,maxC=0,maxL=0;
-  for(let i=0;i<N;i++){const r=HW.roll(pity);const k=r.kind==='cos'?'cos_'+r.g:r.kind;c[k]=(c[k]||0)+1;
-    gapC++;gapL++;if(r.kind==='cos'){maxC=Math.max(maxC,gapC);gapC=0;if(r.g==='l'||r.g==='u'){maxL=Math.max(maxL,gapL);gapL=0;}}}
-  const pct={};for(const k in c)pct[k]=+(c[k]/N*100).toFixed(3);return {pct,maxC,maxL};});
+const sim=await p.evaluate(()=>{const pity={cos:0,leg:0,ult:0};const N=600000;const c={};let gapC=0,gapL=0,gapU=0,maxC=0,maxL=0,maxU=0;
+  for(let i=0;i<N;i++){const r=HW.roll(pity);const k=r.pick?'ticket':r.kind==='cos'?'cos_'+r.g:r.kind;c[k]=(c[k]||0)+1;
+    gapC++;gapL++;gapU++;if(r.kind==='cos'){maxC=Math.max(maxC,gapC);gapC=0;if(r.g==='l'||r.g==='u'){maxL=Math.max(maxL,gapL);gapL=0;}if(r.g==='u'){maxU=Math.max(maxU,gapU);gapU=0;}}}
+  const pct={};for(const k in c)pct[k]=+(c[k]/N*100).toFixed(3);return {pct,maxC,maxL,maxU};});
 log('sim',JSON.stringify(sim));
 check('max gap without costume <= 40', sim.maxC<=40);check('max gap without legend <= 150', sim.maxL<=150);
-check('ultra rare ~0.05%', sim.pct.cos_u>0.03&&sim.pct.cos_u<0.075);
+check('ultra rare ~0.05% natural', sim.pct.cos_u>0.03&&sim.pct.cos_u<0.075);check('max gap without ultra <= 300', sim.maxU<=300);check('black chip ~0.1%', sim.pct.bc>0.07&&sim.pct.bc<0.13);
 // 축제 화면 + 뽑기
 await p.evaluate(()=>{HW.H().candy=20000;App.save();HW.open();});await p.waitForTimeout(400);
 await p.screenshot({path:'hw_screen.png',fullPage:true});
@@ -92,6 +92,31 @@ await p.click('text=한 번 젓기');await p.evaluate(()=>{Math.random=window._R
 await p.waitForTimeout(1600);await p.screenshot({path:'hw_ultra.png'});
 check('ultra stat', (await p.evaluate(()=>App.W.data.st.hwUltra||0))>=1);
 await p.click('.hw-pull button:text-is("닫기")').catch(()=>{});await p.waitForTimeout(200);
+// 초레어 천장: 299번 뒤 다음 한 번은 선택권
+await p.evaluate(()=>{const x=HW.H();x.candy=100;x.ult=0;x.pity.ult=299;HW.render();});await p.waitForTimeout(200);
+await p.click('text=한 번 젓기');await p.waitForTimeout(1300);await p.screenshot({path:'hw_omen.png'});
+await p.waitForTimeout(3600);await p.screenshot({path:'hw_ticket.png'});
+check('ticket granted', (await p.evaluate(()=>HW.H().ult))===1);
+await p.click('.hw-pull button:text-is("초레어 고르기")');await p.waitForTimeout(300);
+await p.screenshot({path:'hw_pick.png'});
+const ownBefore=await p.evaluate(()=>!!HW.H().own.luna_cat);
+await p.click('#ovBox .hw-cos:has-text("검은 고양이")');await p.waitForTimeout(1200);
+check('ticket used', (await p.evaluate(()=>HW.H().ult))===0);
+await p.screenshot({path:'hw_pick_done.png'});
+await p.click('.hw-pull button:text-is("닫기")').catch(()=>{});await p.waitForTimeout(200);
+log('picked luna_cat (owned before:',ownBefore,')');
+// 예전 지갑 이주: 초레어 없이 1,800번 뽑은 사람은 다음 한 번이 천장
+const mig=await p.evaluate(()=>{const w=App.W.data;const keep=JSON.stringify(w.hw);const own={};for(const k in w.hw.own)if(HW.COS_BY[k].g!=='u')own[k]=1;
+  w.hw=Object.assign(JSON.parse(keep),{_v:1,own,pity:{cos:3,leg:9}});w.st.hwPull=1800;const r=HW.H().pity.ult;w.hw=JSON.parse(keep);w.hw._v=2;return r;});
+check('migration backfills ult to 299', mig===299);
+// 검은 칩: 0개 1%, 1개 3%, 2개 4%, 11개 이상 13%
+const bc=await p.evaluate(()=>{App.W.data.eq=null;return [0,1,2,5,11,30].map(n=>+Plus.t13.chance(n).toFixed(4));});
+log('t13 chance',bc);check('black chip ladder', JSON.stringify(bc)==='[0.01,0.03,0.04,0.07,0.13,0.13]');
+check('black chip cap 13%', (await p.evaluate(()=>Plus.t13.chance(30)))<=0.13+1e-9);
+await p.evaluate(()=>{const w=App.W.data;w.inv.blackchip=5;w.t13.on=true;w.t13.done=false;w.t13.day=App.dayKey();App.save();App.show('scrLobby');App.renderLobby();});await p.waitForTimeout(300);
+await p.click('.t13-door');await p.waitForTimeout(600);
+check('black chips gone on entering 13', (await p.evaluate(()=>App.W.data.inv.blackchip||0))===0);
+await p.click('.plus-head .btn').catch(()=>{});await p.evaluate(()=>{Plus.stopAll();App.show('scrLobby');App.renderLobby();});await p.waitForTimeout(300);
 // 옷장: 전부 받고 입기
 await p.evaluate(()=>{const x=HW.H();for(const c of HW.COS)x.own[c.id]=x.own[c.id]||1;App.save();});
 await p.evaluate(()=>{Plus.open('room');});await p.click('.tab:has-text("옷장")');await p.waitForTimeout(300);

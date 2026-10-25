@@ -24,7 +24,7 @@
     watch: { name: '도박사의 회중시계', grade: 'legend', base: 2000, item: 3, w: 5, desc: '방금 진 판을 없던 일로. 세 번. 쓸 때마다 의심 +30.' },
     bottom: { name: '밑장 빼기', grade: 'legend', base: 3000, item: 1, w: 4, desc: '포카드 이상(섯다는 장땡 이상, 블랙잭은 블랙잭) 보장. 의심 +99.' },
     banker: { name: '은행가의 열쇠', grade: 'legend', base: 2500, inv: true, perm: true, w: 4, desc: '금고에 하루 2% 이자. 영구. 금고가 있어야 해요.' },
-    blackchip: { name: '검은 칩 한 개', grade: 'odd', base: 1313, inv: true, w: 2, desc: '쓸 곳이 없는 이상한 칩.' }
+    blackchip: { name: '검은 칩 한 개', grade: 'odd', base: 1313, inv: true, w: 4, desc: '쓸 곳이 없는 이상한 칩.' }
   };
   const owned = (id) => { const w = W(), c = CAT[id]; return c.item ? (w.items[id] || 0) > 0 : (w.inv[id] || 0) > 0; };
   function lotsToday() {
@@ -184,12 +184,12 @@
     w.inv.box--; P.inc('box');
     const r = Math.random();
     let msg;
-    if (r < 0.35) { P.inc('boxEmpty'); msg = '…비어 있어요. 바닥에 먼지만.'; }
-    else if (r < 0.6) { const k = 200 + Math.floor(Math.random() * 18) * 100; w.chips += k; msg = '칩 ' + fmt(k) + '개가 들어 있었어요.'; }
-    else if (r < 0.75) { for (const id of ['lens', 'mirror', 'clover', 'insurance']) w.items[id] = (w.items[id] || 0) + 1; msg = '돋보기, 거울 조각, 네잎클로버, 보험 증서가 하나씩.'; }
-    else if (r < 0.87) { const id = rand(['glasses', 'fan', 'coin', 'shadow'].filter((k) => !(CAT[k].perm && owned(k)))) || 'coin'; deliver(id); msg = CAT[id].name + '이(가) 들어 있었어요!'; }
-    else if (r < 0.95) { const id = rand(['watch', 'bribe', 'banker']); deliver(id); msg = '전설 물건: ' + CAT[id].name + '!'; }
-    else if (r < 0.99) { const id = rand(['dice', 'revolver', 'contract']); deliver(id); msg = '…' + CAT[id].name + '. 손이 서늘해져요.'; }
+    if (r < 0.33) { P.inc('boxEmpty'); msg = '…비어 있어요. 바닥에 먼지만.'; }
+    else if (r < 0.58) { const k = 200 + Math.floor(Math.random() * 18) * 100; w.chips += k; msg = '칩 ' + fmt(k) + '개가 들어 있었어요.'; }
+    else if (r < 0.73) { for (const id of ['lens', 'mirror', 'clover', 'insurance']) w.items[id] = (w.items[id] || 0) + 1; msg = '돋보기, 거울 조각, 네잎클로버, 보험 증서가 하나씩.'; }
+    else if (r < 0.85) { const id = rand(['glasses', 'fan', 'coin', 'shadow'].filter((k) => !(CAT[k].perm && owned(k)))) || 'coin'; deliver(id); msg = CAT[id].name + '이(가) 들어 있었어요!'; }
+    else if (r < 0.93) { const id = rand(['watch', 'bribe', 'banker']); deliver(id); msg = '전설 물건: ' + CAT[id].name + '!'; }
+    else if (r < 0.97) { const id = rand(['dice', 'revolver', 'contract']); deliver(id); msg = '…' + CAT[id].name + '. 손이 서늘해져요.'; }
     else { deliver('blackchip'); msg = '검은 칩 한 개. 차갑고, 생각보다 무거워요.'; }
     A.save(); A.renderTop(); P.check();
     A.dialog('봉인된 상자', [h('p', { class: 'sub', text: msg }), h('div', { class: 'row' }, h('button', { class: 'btn gold', text: '확인', onclick: () => { A.closeDialog(); P.renderRoom(); } }))], false);
@@ -198,12 +198,14 @@
   // ════════════════ 13번 테이블 ════════════════
   const T13 = {};
   function t13state() { const w = W(); const today = A.dayKey(); if (w.t13.day !== today) { w.t13.day = today; w.t13.rolls = 0; w.t13.on = false; w.t13.done = false; } return w.t13; }
+  // 접속할 때마다(하루 최대 10번) 굴린다. 검은 칩 0개 1%, 1개 3%, 그 뒤 1개마다 +1%, 모두 합쳐 최대 13%.
+  T13.chance = (n) => { if (n == null) n = W().inv.blackchip || 0; return Math.min(0.13, (n <= 0 ? 0.01 : 0.03 + (n - 1) * 0.01) + (P.eff('t13') || 0)); };
   T13.roll = () => {
     const w = W(), s = t13state(), today = A.dayKey();
     if (s.ban && s.ban > today) return;
     if (s.on || s.done || s.rolls >= 10) return;
     s.rolls++;
-    const p = (w.inv.blackchip ? 0.03 : 0.01) + (P.eff('t13') || 0);
+    const p = T13.chance();
     if (Math.random() < p) { s.on = true; P.inc('t13Seen'); }
   };
   T13.active = () => { const s = t13state(); return s.on && !s.done; };
@@ -222,6 +224,8 @@
   }
   let G13 = null;
   function openT13() {
+    const bc = W().inv.blackchip || 0;
+    if (bc > 0) { W().inv.blackchip = 0; setTimeout(() => A.toast('주머니 속 검은 칩 ' + bc + '개가 차갑게 녹아 사라졌어요.'), 400); }
     P.inc('t13Visit'); A.save();
     const el = P.screen('13', '', 't13-screen');
     el.querySelector('.plus-head .btn').remove();
@@ -306,7 +310,7 @@
   // ════════════════ 바 ════════════════
   const CLUES = [
     { id: 'thirteen', title: '13이라는 숫자', text: '13번이요? 이 카지노엔 12번 테이블까지밖에 없습니다. …공식적으로는요.', keys: ['13', '십삼', '테이블', '숫자'] },
-    { id: 'blackchip', title: '검은 칩', text: '검은 칩을 쥐고 온 손님이 있었죠. 그 칩을 가진 사람 앞에는 그 테이블이 더 자주 나타난다더군요.', keys: ['검은', '블랙칩', '검정 칩', '칩 색'] },
+    { id: 'blackchip', title: '검은 칩', text: '검은 칩을 쥐고 온 손님이 있었죠. 그 칩을 많이 쥔 사람일수록 그 테이블이 더 자주 나타난다더군요. 앉는 순간 칩은 녹아 없어진다지만요.', keys: ['검은', '블랙칩', '검정 칩', '칩 색'] },
     { id: 'box', title: '봉인된 상자', text: '무거운 상자는 열지 않는 게 좋습니다. 가벼운 상자는… 더더욱이요. 비어 있을 때가 많거든요.', keys: ['상자', '봉인', '경매'] },
     { id: 'yoon', title: '노신사 윤의 버릇', text: '노신사 윤은 좋은 패가 들어오면 꼭 넥타이를 만집니다. 본인만 모르죠.', keys: ['윤', '노신사', '버릇', '습관'] },
     { id: 'rose', title: '마담 로즈의 웃음', text: '마담 로즈가 웃으면 조심하세요. 그 사람은 질 때도 웃지만, 허세 부릴 때 제일 크게 웃습니다.', keys: ['로즈', '마담', '허세'] },

@@ -18,13 +18,19 @@ const HW = (() => {
   const END = Date.parse('2026-11-08T06:00:00+09:00');
 
   function norm(w) {
-    if (w.hw && w.hw._v === 1) return w.hw;
+    if (w.hw && w.hw._v === 2) return w.hw;
     const x = Object.assign({ candy: 0, total: 0, own: {}, eq: {}, items: {}, ms: null, popDay: '', met: false, force: '', endDone: false }, w.hw || {});
     x.pity = Object.assign({ cos: 0, leg: 0 }, x.pity);
+    if (x.pity.ult == null) {
+      // 초레어 천장이 생기기 전에 뽑은 횟수도 쳐 준다 (초레어를 아직 못 받은 사람만)
+      const hasU = Object.keys(x.own).some((k) => COS_BY[k] && COS_BY[k].g === 'u');
+      x.pity.ult = hasU ? 0 : Math.min(PITY_ULT - 1, (w.st && w.st.hwPull) || 0);
+    }
+    x.ult = Math.max(0, Math.floor(Number(x.ult) || 0));   // 초레어 선택권
     x.own = Object.assign({}, x.own); x.eq = Object.assign({}, x.eq); x.items = Object.assign({}, x.items);
     x.fx = Object.assign({ basket: 0, lantern: 0, broom: 0, cloak: 0, wings: 0 }, x.fx);
     x.candy = Math.max(0, Math.floor(Number(x.candy) || 0));
-    x._v = 1;
+    x._v = 2;
     w.hw = x;
     return x;
   }
@@ -100,23 +106,26 @@ const HW = (() => {
   const EV_IDS = Object.keys(EV);
 
   // ───────── 마녀의 솥 (뽑기) ─────────
-  // 확률(%): 초레어 0.05 · 전설 0.3 · 희귀 1.2 · 일반 3.5 · 경매 희귀품 3 · 이벤트 소모품 19 · 상점 아이템 28 · 칩 44.95
-  const RATE = [['u', 0.05], ['l', 0.3], ['r', 1.2], ['n', 3.5], ['auc', 3], ['ev', 19], ['shop', 28]];
-  const PITY_COS = 40, PITY_LEG = 150, COST1 = 100, COST11 = 1000;
+  // 확률(%): 초레어 0.05 · 전설 0.3 · 희귀 1.2 · 일반 3.5 · 경매 희귀품 3 · 검은 칩 0.1 · 이벤트 소모품 19 · 상점 아이템 28 · 칩 44.85
+  const RATE = [['u', 0.05], ['l', 0.3], ['r', 1.2], ['n', 3.5], ['auc', 3], ['bc', 0.1], ['ev', 19], ['shop', 28]];
+  const PITY_COS = 40, PITY_LEG = 150, PITY_ULT = 300, COST1 = 100, COST11 = 1000;
   const SHOP_POOL = ['lens', 'mirror', 'cigarette', 'clover', 'slot', 'insurance', 'whiskey', 'notebook', 'pistol', 'sleeve', 'magnet'];
   const RARE = ['glasses', 'fan', 'coin', 'shadow', 'box', 'dice'];
   const pickCos = (g) => rand(COS.filter((c) => c.g === g));
   const chipAmt = () => 1 + Math.floor(Math.pow(Math.random(), 2) * 200);
-  // pity: { cos: 의상 없이 뽑은 횟수, leg: 전설 없이 뽑은 횟수 }. 초레어는 천장으로 나오지 않는다.
+  // pity: { cos: 의상 없이, leg: 전설 없이, ult: 초레어 없이 뽑은 횟수 }.
+  // 초레어 천장(300번)은 의상이 아니라 "초레어 선택권"으로 나온다. 받을 초레어는 플레이어가 고른다.
   function roll(pity, rnd = Math.random) {
-    pity.cos++; pity.leg++;
+    pity.cos++; pity.leg++; pity.ult = (pity.ult || 0) + 1;
     let g = null;
+    if (pity.ult >= PITY_ULT) { pity.cos = 0; pity.leg = 0; pity.ult = 0; return { kind: 'cos', g: 'u', pick: true }; }
     if (pity.leg >= PITY_LEG) g = 'l';
     else if (pity.cos >= PITY_COS) { const r = rnd() * 5; g = r < 3.5 ? 'n' : r < 4.7 ? 'r' : 'l'; }
     else {
       let r = rnd() * 100, kind = 'chips';
       for (const [k, p] of RATE) { if (r < p) { kind = k; break; } r -= p; }
       if (kind === 'auc') return { kind };
+      if (kind === 'bc') return { kind, id: 'blackchip' };
       if (kind === 'ev') return { kind, id: rand(EV_IDS) };
       if (kind === 'shop') return { kind, id: rand(SHOP_POOL) };
       if (kind === 'chips') return { kind, n: chipAmt() };
@@ -124,6 +133,7 @@ const HW = (() => {
     }
     pity.cos = 0;
     if (g === 'l' || g === 'u') pity.leg = 0;
+    if (g === 'u') pity.ult = 0;
     return { kind: 'cos', id: pickCos(g).id, g };
   }
   function grant(res) {
@@ -135,6 +145,8 @@ const HW = (() => {
       if (ok.length) { res.id = rand(ok); P.auction.deliver(res.id); res.name = C[res.id].name; }
       else { res.kind = 'chips'; res.n = 300; w.chips += 300; res.name = '300칩'; }
     } else if (res.kind === 'ev') { x.items[res.id] = (x.items[res.id] || 0) + 1; res.name = EV[res.id].name; }
+    else if (res.kind === 'bc') { P.auction.deliver('blackchip'); res.name = '검은 칩 한 개'; }
+    else if (res.kind === 'cos' && res.pick) { x.ult += 1; res.name = '초레어 선택권'; }
     else if (res.kind === 'cos') {
       const c = COS_BY[res.id]; res.name = c.name;
       if (x.own[res.id]) { res.dupe = GR[c.g].back; x.candy += res.dupe; P.inc('hwDupe'); }
@@ -158,7 +170,7 @@ const HW = (() => {
     A.save(); A.renderTop(); P.check();
     return out;
   }
-  const dispG = (r) => (r.kind === 'cos' ? r.g : r.kind === 'auc' ? 'r' : r.kind === 'ev' ? 'e' : 'n');
+  const dispG = (r) => (r.kind === 'cos' ? r.g : r.kind === 'auc' || r.kind === 'bc' ? 'r' : r.kind === 'ev' ? 'e' : 'n');
 
   // ───────── 사탕 ─────────
   function addCandy(k) {
@@ -378,16 +390,18 @@ const HW = (() => {
     return box;
   }
   function thumb(r) {
+    if (r.pick) return h('span', { class: 'hw-thumb s-ico ult', svg: icon('star', 46) });
     if (r.kind === 'cos') return cosThumb(r.id);
     if (r.kind === 'chips') return h('span', { class: 'hw-thumb s-ico' }, h('span', { class: 'chip-ico big' }));
     if (r.kind === 'ev') return h('span', { class: 'hw-thumb s-ico ev', svg: icon(r.id, 46) });
     return h('span', { class: 'hw-thumb s-ico', svg: A.icon(r.id, 46) });
   }
-  const KINDNAME = { chips: '칩', shop: '상점 아이템', auc: '경매 희귀품', ev: '이벤트 소모품' };
+  const KINDNAME = { chips: '칩', shop: '상점 아이템', auc: '경매 희귀품', ev: '이벤트 소모품', bc: '???' };
   function face(r) {
     const f = h('div', { class: 'hw-face g-' + dispG(r) });
-    f.append(h('small', { class: 'hw-grade', text: r.kind === 'cos' ? GR[r.g].name + ' 의상' : KINDNAME[r.kind] }), thumb(r), h('b', { text: r.name }));
-    if (r.dupe) f.append(h('em', { text: '이미 가진 의상 · 사탕 +' + r.dupe }));
+    f.append(h('small', { class: 'hw-grade', text: r.pick ? '초레어 확정' : r.kind === 'cos' ? GR[r.g].name + ' 의상' : KINDNAME[r.kind] }), thumb(r), h('b', { text: r.name }));
+    if (r.pick) f.append(h('em', { class: 'new', text: '원하는 초레어를 직접 골라요' }));
+    else if (r.dupe) f.append(h('em', { text: '이미 가진 의상 · 사탕 +' + r.dupe }));
     else if (r.kind === 'cos') f.append(h('em', { class: 'new', text: 'NEW · ' + SLOT[COS_BY[r.id].slot] }));
     return f;
   }
@@ -403,11 +417,49 @@ const HW = (() => {
     const res = pull(n);
     if (!res) { busy = false; return; }
     render();
-    const cz = $('.hw-cauldron'); if (cz && !reduce()) cz.classList.add('brew');
-    await sleep(reduce() ? 0 : 1100);
-    if (n === 1) await showOne(res[0]); else await showMany(res);
-    busy = false;
+    // 예고: 초레어가 들어 있으면 솥이 붉게 끓고 불이 꺼진다. 전설만 있을 때도 가끔(15%) 같은 예고가 나온다.
+    const has = (g) => res.some((r) => r.kind === 'cos' && r.g === g);
+    const omen = has('u') || (has('l') && Math.random() < 0.15);
+    const cz = $('.hw-cauldron');
+    let dark = null;
+    if (cz && !reduce()) {
+      cz.classList.add('brew');
+      if (omen) { cz.classList.add('omen'); dark = h('div', { class: 'hw-omen', 'aria-hidden': 'true' }); document.body.append(dark); heartbeat(3); await sleep(2300); }
+      else await sleep(1100);
+    }
+    try { if (n === 1) await showOne(res[0]); else await showMany(res); }
+    finally { if (dark) dark.remove(); busy = false; }
     if (P.isOn('hw')) render();
+  }
+  let actx = null;
+  function heartbeat(times) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const t0 = actx.currentTime + 0.05;
+      for (let i = 0; i < times; i++) for (const [dt, f, v] of [[0, 96, 0.8], [0.24, 78, 0.55]]) {
+        const t = t0 + i * 0.78 + dt, o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.55, t + 0.2);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + 0.26);
+      }
+    } catch (e) { /* 소리 없이 */ }
+  }
+  // 초레어 선택권 쓰기: 셋 중 하나를 고른다 (이미 가진 걸 고르면 사탕 500)
+  function chooseUlt() {
+    const x = H(); if (!(x.ult > 0)) return;
+    const list = COS.filter((c) => c.g === 'u');
+    const grid = h('div', { class: 'hw-wardrobe hw-ultpick' });
+    for (const c of list) {
+      grid.append(h('button', { class: 'hw-cos g-u', onclick: async () => {
+        if (!(H().ult > 0)) return;
+        H().ult--; A.closeDialog();
+        const r = grant({ kind: 'cos', id: c.id, g: 'u' });
+        A.save(); A.renderTop(); P.check();
+        await showOne(r, true);
+        if (P.isOn('hw')) render(); else if (P.isOn('room')) refreshCloset();
+      } }, cosThumb(c.id), h('b', { text: c.name }), h('small', { text: x.own[c.id] ? '이미 가짐 · 고르면 사탕 ' + GR.u.back : SLOT[c.slot] })));
+    }
+    A.dialog('초레어 고르기', [h('p', { class: 'sub', text: '선택권 ' + x.ult + '장. 갖고 싶은 초레어 하나를 고르세요.' }), grid]);
   }
   function overlay(cls) {
     const ov = h('div', { class: 'hw-pull ' + cls, role: 'dialog', 'aria-modal': 'true', 'aria-label': '뽑기 결과' });
@@ -428,8 +480,9 @@ const HW = (() => {
     return new Promise((done) => {
       const close = () => { ov.remove(); done(); };
       const row = h('div', { class: 'actions' });
-      const news = list.filter((r) => r.kind === 'cos' && !r.dupe);
-      if (news.length === 1) {
+      const news = list.filter((r) => r.kind === 'cos' && !r.dupe && !r.pick);
+      if (list.some((r) => r.pick)) row.append(h('button', { class: 'btn gold', text: '초레어 고르기', onclick: () => { close(); chooseUlt(); } }));
+      else if (news.length === 1) {
         const c = COS_BY[news[0].id];
         row.append(h('button', { class: 'btn gold', text: '바로 입기', onclick: () => { if (H().eq[c.slot] !== c.id) equip(c.id); A.toast(c.name + '을(를) 입었어요.'); close(); } }));
       } else if (news.length > 1) row.append(h('button', { class: 'btn gold', text: '옷장 열기', onclick: () => { close(); openCloset(); } }));
@@ -439,9 +492,9 @@ const HW = (() => {
       ov.onkeydown = (e) => { if (e.key === 'Escape') close(); };
     });
   }
-  async function showOne(r) {
+  async function showOne(r, calm) {
     const g = dispG(r), ov = overlay('one g-' + g);
-    if (g === 'u') await ultra(ov);
+    if (g === 'u' && !calm) await ultra(ov);
     const card = h('div', { class: 'hw-flip big' }, h('div', { class: 'hw-back' }), face(r));
     ov.append(h('div', { class: 'hw-burst' }), card);
     await sleep(80); card.classList.add('open');
@@ -449,6 +502,7 @@ const HW = (() => {
     return finish(ov, [r]);
   }
   async function showMany(list) {
+    list = list.filter((r) => dispG(r) !== 'u').concat(list.filter((r) => dispG(r) === 'u'));   // 초레어는 맨 마지막에
     const ov = overlay('many');
     const grid = h('div', { class: 'hw-grid' });
     const cards = list.map((r) => { const c = h('div', { class: 'hw-flip pre-' + dispG(r) }, h('div', { class: 'hw-back' }), face(r)); grid.append(c); return c; });
@@ -463,17 +517,17 @@ const HW = (() => {
       if (!skip) await sleep(g === 'l' || g === 'u' ? 750 : 240);
     }
     skipBtn.remove();
-    const news = list.filter((r) => r.kind === 'cos' && !r.dupe).length, back = list.reduce((a, r) => a + (r.dupe || 0), 0);
+    const news = list.filter((r) => r.kind === 'cos' && !r.dupe && !r.pick).length, back = list.reduce((a, r) => a + (r.dupe || 0), 0);
     ov.append(h('p', { class: 'note hw-sum', text: '새 의상 ' + news + '개' + (back ? ' · 중복 페이백 사탕 ' + back + '개' : '') }));
     return finish(ov, list);
   }
 
   // ───────── 축제 화면 ─────────
   function rateTable() {
-    const rows = [['초레어 의상', '0.05%'], ['전설 의상', '0.3%'], ['희귀 의상', '1.2%'], ['일반 의상', '3.5%'], ['경매 희귀품', '3%'], ['이벤트 소모품', '19%'], ['상점 아이템', '28%'], ['칩 1~200', '44.95%']];
+    const rows = [['초레어 의상', '0.05%'], ['전설 의상', '0.3%'], ['희귀 의상', '1.2%'], ['일반 의상', '3.5%'], ['경매 희귀품', '3%'], ['검은 칩', '0.1%'], ['이벤트 소모품', '19%'], ['상점 아이템', '28%'], ['칩 1~200', '44.85%']];
     return h('details', { class: 'panel rules-box hw-rates' }, h('summary', { text: '확률과 천장 보기' }),
       h('div', { class: 'statlist' }, ...rows.map(([a, b]) => h('div', null, h('span', { text: a }), h('b', { text: b })))),
-      h('p', { class: 'note', text: '의상 없이 ' + PITY_COS + '번 뽑으면 다음은 의상 확정, 전설 없이 ' + PITY_LEG + '번 뽑으면 전설 의상 확정이에요. 초레어는 천장으로는 나오지 않아요.' }),
+      h('p', { class: 'note', text: '의상 없이 ' + PITY_COS + '번 뽑으면 다음은 의상 확정, 전설 없이 ' + PITY_LEG + '번 뽑으면 전설 의상 확정이에요. 초레어 없이 ' + PITY_ULT + '번 뽑으면 초레어 선택권이 나와서, 셋 중 원하는 걸 직접 골라요.' }),
       h('p', { class: 'note', text: '이미 가진 의상이 또 나오면 사탕으로 돌려받아요: 일반 30 · 희귀 80 · 전설 200 · 초레어 500. 10+1은 이벤트 소모품이나 의상이 하나 이상 꼭 들어 있어요.' }));
   }
   function bagPanel(after) {
@@ -528,7 +582,7 @@ const HW = (() => {
   function render() {
     const x = H();
     const el = P.screen('벨벳 할로윈 축제', '이긴 판에서 번 칩 30개마다 사탕 1개. 마녀의 솥을 저어 의상과 물건을 뽑으세요. ' + until(), 'hw-screen');
-    const pityL = Math.max(1, PITY_LEG - x.pity.leg), pityC = Math.max(1, PITY_COS - x.pity.cos);
+    const pityL = Math.max(1, PITY_LEG - x.pity.leg), pityC = Math.max(1, PITY_COS - x.pity.cos), pityU = Math.max(1, PITY_ULT - x.pity.ult);
     const pot = h('div', { class: 'hw-cauldron', 'aria-hidden': 'true' }, h('img', { src: IMG('cauldron'), alt: '' }),
       ...Array.from({ length: 7 }, (_, k) => h('i', { class: 'bub', style: `--x:${32 + k * 6}%;--d:${(k * 0.37) % 1.6}s` })));
     const box = h('div', { class: 'hw-gacha' }, pot,
@@ -537,7 +591,9 @@ const HW = (() => {
         h('div', { class: 'actions' },
           h('button', { class: 'btn gold', disabled: busy || x.candy < COST1, onclick: () => doPull(1) }, '한 번 젓기 · 사탕 ' + COST1),
           h('button', { class: 'btn gold', disabled: busy || x.candy < COST11, onclick: () => doPull(11) }, '10+1 · 사탕 ' + fmt(COST11))),
+        x.ult > 0 && !busy ? h('button', { class: 'btn red hw-ultbtn', text: '초레어 선택권 ' + x.ult + '장 · 고르기', onclick: chooseUlt }) : null,
         h('p', { class: 'note', text: '의상 확정까지 ' + pityC + '번 · 전설 확정까지 ' + pityL + '번' }),
+        h('p', { class: 'note hw-ultnote', text: '초레어 확정까지 ' + pityU + '번' }),
         h('p', { class: 'note', text: '모은 의상 ' + ownCount(W()) + ' / ' + COS.length + ' · 지금까지 받은 사탕 ' + fmt(x.total) }),
         h('div', { class: 'row' }, h('button', { class: 'btn small', text: '옷장 열기', onclick: openCloset }))));
     el.append(box, h('div', { class: 'hw-cols' }, msPanel(), bagPanel(false)), rateTable());
@@ -548,7 +604,8 @@ const HW = (() => {
     const x = H(), after = !isOn();
     const prev = h('div', { class: 'panel hw-closet-top' }, portrait(88, { force: true }),
       h('div', null, h('h3', { text: '옷장' }), h('p', { class: 'note', text: '할로윈 의상은 축제가 끝나도 여기 남아요. 누르면 입고, 다시 누르면 벗어요. 모은 의상 ' + ownCount(W()) + ' / ' + COS.length }),
-        isOn() ? h('button', { class: 'btn small gold', text: '마녀의 솥으로', onclick: open }) : null));
+        isOn() ? h('button', { class: 'btn small gold', text: '마녀의 솥으로', onclick: open }) : null,
+        x.ult > 0 ? h('button', { class: 'btn small red', text: '초레어 선택권 ' + x.ult + '장 · 고르기', onclick: chooseUlt }) : null));
     body.append(prev);
     if (after && x.candy > 0) {
       const k = Math.floor(x.candy / 2);
@@ -774,7 +831,7 @@ const HW = (() => {
     x.candy = Math.max(0, Math.floor(Number(v('hwCandyIn').value) || 0));
     if (v('hwAll').checked) for (const c of COS) x.own[c.id] = x.own[c.id] || 1;
     if (v('hwMet').checked) x.met = false;
-    if (v('hwPity').checked) x.pity = { cos: 0, leg: 0 };
+    if (v('hwPity').checked) x.pity = { cos: 0, leg: 0, ult: 0 };
     if (v('hwEnd').checked) x.endDone = false;
     popShown = false;
     apply(); A.renderTop();
@@ -786,7 +843,7 @@ const HW = (() => {
   door();
 
   return {
-    isOn, isOver, START, END, COS, COS_BY, EV, GR, RATE, PITY_COS, PITY_LEG, roll, pull, grant, addCandy, missions, claim, MS,
+    isOn, isOver, START, END, COS, COS_BY, EV, GR, RATE, PITY_COS, PITY_LEG, PITY_ULT, chooseUlt, roll, pull, grant, addCandy, missions, claim, MS,
     open, render, closet, equip, apply, top, portrait, playFx, openDoor, barScene, needIntro, intro, lunaGreet, lunaTalk,
     adminRows, adminApply, exchange, endCheck, useEv, H, norm
   };
