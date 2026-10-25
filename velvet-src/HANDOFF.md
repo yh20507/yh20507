@@ -18,6 +18,12 @@ velvet-src/HANDOFF.md 를 먼저 읽어 줘. 나는 코딩을 잘 몰라. 설명
 - 시험: t_plus_ui.cjs, t_mini.cjs (playwright + 가짜 Supabase), t_plus_unit.cjs, t_hw.cjs(할로윈)
   (예전 시험 두 개는 window.HW_TEST_OFF 로 이벤트를 끄고 돈다)
 
+## Windows 설치 프로그램 (데스크톱)
+- desktop/ 폴더(Tauri). 게임 주소를 전용 창으로 열 뿐이라, 게임 업데이트는 다시 깔지 않아도 자동 반영
+- desktop/ 를 고쳐 올리면 GitHub Actions(desktop-exe)가 Windows에서 만들어 Releases "desktop-v버전"에 올림
+- 받는 곳: https://github.com/yh20507/yh20507/releases/tag/desktop-v1.0.0 (설치 파일 약 1.5MB, 관리자 권한 필요 없음)
+- 서명이 없어서 첫 실행 때 "Windows의 PC 보호" → "추가 정보 → 실행"
+
 ## 서버 (Supabase)
 - 프로젝트 id: omofqvclwetstbuoumzg (velvet-casino, 무료 플랜)
 - 테이블: wallets(지갑 jsonb, 본인만 읽고 쓰기), bar_usage(바텐더 하루 사용량)
