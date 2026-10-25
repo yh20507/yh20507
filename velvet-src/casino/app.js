@@ -250,6 +250,7 @@ const App = (() => {
     $('#wSave').textContent = W.mode === 'online' ? '온라인 저장 · ' + (VelvetOnline.id || '') : W.mode === 'account' ? '계정에 저장' : '이 기기에 저장';
     const lo = $('#wLogout'); if (lo) lo.hidden = W.mode !== 'online';
     const tt = $('#wTitle'); if (tt) { const nm = window.Plus ? Plus.titleName() : ''; tt.textContent = nm; tt.hidden = !nm; }
+    if (window.HW) HW.top();
   }
 
   function cardEl(c, o = {}) {
@@ -807,7 +808,7 @@ const App = (() => {
         seat.append(cs);
       }
       const plate = h('div', { class: 'plate' },
-        h('div', { class: 'nm' }, (v.button === i && v.game === 'holdem') ? h('span', { class: 'dealer-btn', style: 'display:inline-grid;margin-right:4px', text: 'D' }) : null, isMe ? '나' : (ctx.names && ctx.names[i]) || s.name),
+        h('div', { class: 'nm' }, (v.button === i && v.game === 'holdem') ? h('span', { class: 'dealer-btn', style: 'display:inline-grid;margin-right:4px', text: 'D' }) : null, isMe && window.HW ? HW.portrait(22) : null, isMe ? '나' : (ctx.names && ctx.names[i]) || s.name),
         h('div', { class: 'st' }, s.away ? '자리 비움' : fmt(s.stack) + (s.allin ? ' · 올인' : '')),
         (!isMe && s.persona && ctx.single) ? h('div', { class: 'note', style: 'font-size:11px', text: C.PERSONA[s.persona].name + (s.drunk > 0 ? ' · 취함' : '') + (s.conf ? ' · ' + s.conf : '') }) : null);
       seat.append(plate);
@@ -1073,6 +1074,7 @@ const App = (() => {
       h('div', { class: 'adm-grid' }, Object.keys(PERMS).map((id) => h('label', { class: 'adm-row adm-check' }, perms[id], h('span', { text: PERMS[id].name })))),
       h('h3', { text: '아이템 개수' }),
       h('div', { class: 'adm-grid' }, Object.keys(ITEMS).map((id) => row(ITEMS[id].name, items[id]))),
+      ...(window.HW ? HW.adminRows() : []),
       h('div', { class: 'row' },
         h('button', { class: 'btn gold', text: '적용', onclick: () => {
           const n = (el, max) => { let v = Math.max(0, Math.floor(Number(el.value) || 0)); if (max != null) v = Math.min(max, v); return v; };
@@ -1082,6 +1084,7 @@ const App = (() => {
           for (const id in ITEMS) { const v = n(items[id], 99); if (v) w.items[id] = v; else delete w.items[id]; }
           if (!w.perm.vault && w.vault) { w.chips += w.vault; w.vault = 0; }
           w.stats.best = Math.max(w.stats.best || 0, w.chips + w.vault);
+          if (window.HW) HW.adminApply();
           save(); closeDialog();
           if (!$('#scrLobby').hidden) renderLobby();
           if (!$('#scrShop').hidden) renderShop();
@@ -1138,10 +1141,15 @@ const App = (() => {
     $('#enter').disabled = false; $('#enter').textContent = '입장하기';
     renderTop();
     $('#enter').onclick = () => {
+      const inside = () => {
+        $('#app').hidden = false;
+        show('scrLobby'); renderLobby();
+        msgs.forEach((m, k) => setTimeout(() => toast(m), 900 + k * 3400));
+      };
+      $('#enter').disabled = true;
+      if (window.HW && HW.isOn()) return HW.openDoor(inside);   // 할로윈: 박쥐 떼와 박쥐 모양 문
       $('#door').classList.add('open');
-      $('#app').hidden = false;
-      show('scrLobby'); renderLobby();
-      msgs.forEach((m, k) => setTimeout(() => toast(m), 900 + k * 3400));
+      inside();
       setTimeout(() => { $('#door').hidden = true; }, 1200);
     };
     $('#toLobby').onclick = () => { if (window.Plus) Plus.stopAll(); show('scrLobby'); renderLobby(); };

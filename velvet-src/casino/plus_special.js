@@ -369,15 +369,17 @@
     const w = W();
     const el = P.screen('바', '카지노 한쪽의 어두운 바. 바텐더 노엘이 잔을 닦고 있어요.', 'bar-screen');
     if (!B.open) {
-      el.append(h('div', { class: 'bar-scene', 'aria-hidden': 'true' }, h('div', { class: 'bottles' }, ...Array.from({ length: 11 }, (_, k) => h('i', { style: `--h:${40 + (k * 17) % 45}px;--c:${['#5c2a1e', '#2e4d3a', '#6b5a2a', '#3a2f55', '#7a3b2a'][k % 5]}` }))), h('div', { class: 'tender' }), h('div', { class: 'counter' })));
+      if (window.HW && HW.needIntro()) return HW.intro(el, openBar);   // 할로윈: 새 알바 루나 첫 인사
+      if (window.HW) el.append(HW.barScene(false)); else el.append(h('div', { class: 'bar-scene', 'aria-hidden': 'true' }, h('div', { class: 'bottles' }, ...Array.from({ length: 11 }, (_, k) => h('i', { style: `--h:${40 + (k * 17) % 45}px;--c:${['#5c2a1e', '#2e4d3a', '#6b5a2a', '#3a2f55', '#7a3b2a'][k % 5]}` }))), h('div', { class: 'tender' }), h('div', { class: 'counter' })));
       el.append(h('div', { class: 'panel' }, h('h3', { text: '바에 앉기' }), h('p', { class: 'note', text: '입장료 50칩. 한 번 앉으면 ' + (10 + (P.eff('bar') || 0)) + '마디까지 이야기할 수 있고, 술을 시키면 5마디씩 늘어요. 가끔 바텐더가 이상한 이야기를 흘려요. 들은 이야기는 내 방 단서 서랍에 적혀요.' }),
-        h('button', { class: 'btn gold', disabled: w.chips < 50, text: '50칩 내고 앉기', onclick: () => { w.chips -= 50; B.open = true; B.talks = 10 + (P.eff('bar') || 0); B.msgs = [{ who: 'bar', text: rand(GREET) }]; P.inc('barVisit'); A.save(); A.renderTop(); P.check(); openBar(); } })));
+        h('button', { class: 'btn gold', disabled: w.chips < 50, text: '50칩 내고 앉기', onclick: () => { w.chips -= 50; B.open = true; B.talks = 10 + (P.eff('bar') || 0); B.msgs = [{ who: 'bar', text: rand(GREET) }]; const lg = window.HW && HW.lunaGreet(); if (lg) B.msgs.push(lg); P.inc('barVisit'); A.save(); A.renderTop(); P.check(); openBar(); } })));
       return;
     }
     P.onLeave(() => { B.open = false; B.msgs = []; }, 'bar');
+    if (window.HW) el.append(HW.barScene(true));
     const wrap = h('div', { class: 'bar-wrap' });
     const chat = h('div', { class: 'chat', id: 'chat' });
-    for (const m of B.msgs) chat.append(h('div', { class: 'msg ' + (m.who === 'me' ? 'me' : 'bar') }, m.clue ? h('small', { text: '단서: ' + m.clue }) : null, h('p', { text: m.text })));
+    for (const m of B.msgs) chat.append(h('div', { class: 'msg ' + (m.who === 'me' ? 'me' : m.who === 'luna' ? 'luna' : 'bar') }, m.who === 'luna' ? h('small', { class: 'who', text: '루나' }) : null, m.clue ? h('small', { text: '단서: ' + m.clue }) : null, h('p', { text: m.text })));
     if (B.busy) chat.append(h('div', { class: 'msg bar typing' }, h('p', { text: '…' })));
     const inp = h('input', { type: 'text', id: 'barIn', maxlength: '200', placeholder: B.talks > 0 ? '노엘에게 말 걸기' : '술을 한 잔 시키면 더 이야기할 수 있어요', disabled: B.talks <= 0 || B.busy, 'aria-label': '바텐더에게 할 말' });
     const send = async () => {
@@ -386,9 +388,13 @@
       let r = await aiReply(t);
       if (!r) { await sleep(500 + Math.random() * 700); r = scripted(t); }
       B.busy = false;
+      const lt = window.HW ? HW.lunaTalk(t, r) : null;
+      if (lt && lt.replace) r = Object.assign({}, r, lt.replace);
+      if (lt) for (const x of lt.before) B.msgs.push(x);
       const m = { who: 'bar', text: r.reply };
       if (r.clue && !w.clues.includes(r.clue)) { w.clues.push(r.clue); const c = CLUES.find((x) => x.id === r.clue); m.clue = c ? c.title : ''; A.toast('수첩에 단서가 적혔어요: ' + m.clue); }
-      B.msgs.push(m); A.save(); P.check(); if (B.open) { openBar(); const i2 = $('#barIn'); if (i2) i2.focus(); }
+      B.msgs.push(m); if (lt) for (const x of lt.after) B.msgs.push(x);
+      A.save(); P.check(); if (B.open) { openBar(); const i2 = $('#barIn'); if (i2) i2.focus(); }
     };
     inp.onkeydown = (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); send(); } };
     wrap.append(h('div', { class: 'hand-panel' }, chat, h('div', { class: 'row chat-in' }, inp, h('button', { class: 'btn gold', text: '말하기', disabled: B.talks <= 0 || B.busy, onclick: send })),

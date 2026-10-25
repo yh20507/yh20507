@@ -52,6 +52,17 @@
     const hub = document.createElementNS(ns, 'circle'); hub.setAttribute('cx', 150); hub.setAttribute('cy', 150); hub.setAttribute('r', 92); hub.setAttribute('class', 'hub');
     g.append(hub);
     for (let k = 0; k < 8; k++) { const l = document.createElementNS(ns, 'line'); const [a, b] = pt(20, k * 45), [c, d] = pt(78, k * 45); l.setAttribute('x1', a); l.setAttribute('y1', b); l.setAttribute('x2', c); l.setAttribute('y2', d); l.setAttribute('class', 'spoke'); g.append(l); }
+    // 할로윈 카드 테마: 가운데 문양
+    const cb = window.HW && W().hw && W().hw.eq && W().hw.eq.card;
+    if (cb) {
+      const defs = document.createElementNS(ns, 'defs'), cp = document.createElementNS(ns, 'clipPath'), cc = document.createElementNS(ns, 'circle');
+      cp.setAttribute('id', 'hwHub'); cc.setAttribute('cx', 150); cc.setAttribute('cy', 150); cc.setAttribute('r', 88); cp.append(cc); defs.append(cp); svg.append(defs);
+      const im = document.createElementNS(ns, 'image');
+      im.setAttribute('href', 'hw/' + cb + '.webp'); im.setAttribute('x', 62); im.setAttribute('y', 27); im.setAttribute('width', 176); im.setAttribute('height', 246);
+      im.setAttribute('clip-path', 'url(#hwHub)'); im.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+      g.append(im);
+      const ring = document.createElementNS(ns, 'circle'); ring.setAttribute('cx', 150); ring.setAttribute('cy', 150); ring.setAttribute('r', 88); ring.setAttribute('class', 'hub-ring'); g.append(ring);
+    }
     svg.append(g);
     const ptr = document.createElementNS(ns, 'path'); ptr.setAttribute('d', 'M150,2 L160,18 L140,18 Z'); ptr.setAttribute('class', 'ptr'); svg.append(ptr);
     const ball = document.createElementNS(ns, 'circle'); ball.setAttribute('cx', 150); ball.setAttribute('cy', 26); ball.setAttribute('r', 6); ball.setAttribute('class', 'ball'); svg.append(ball);
@@ -249,7 +260,7 @@
     const turn = t.phase === 'bet' && t.toAct === i;
     const bub = G.bubbles[i];
     return h('div', { class: 'pseat s' + i + (turn ? ' turn' : '') + (t.folded[i] ? ' fold' : '') + (G.winners && G.winners.includes(i) ? ' win' : '') },
-      cardsEl, h('div', { class: 'plate' }, h('div', { class: 'nm', text: i === 0 ? '나' : s.name }),
+      cardsEl, h('div', { class: 'plate' }, h('div', { class: 'nm' }, i === 0 && window.HW ? window.HW.portrait(22) : null, i === 0 ? '나' : s.name),
         h('div', { class: 'st', text: fmt(t.stack(i)) + (t.allin[i] ? ' · 올인' : '') }),
         i ? h('div', { class: 'note', style: 'font-size:11px', text: A.C.PERSONA[s.persona] ? A.C.PERSONA[s.persona].name : '' }) : null),
       t.bets && t.bets[i] ? h('span', { class: 'betchip', text: fmt(t.bets[i]) }) : null, extra || null,

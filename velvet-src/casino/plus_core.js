@@ -306,7 +306,7 @@ const Plus = (() => {
   function luckP() { const w = W(); return Math.min(0.5, (w.fx2.luck > 0 ? 0.15 : 0) + (eff('luck') || 0)); }
   function onHandStart(S, t) {
     const w = W();
-    if (!(t.rig && t.rig.luck)) { const p = luckP(); if (p) t.rig.luck = { seat: 0, p }; }
+    if (!(t.rig && t.rig.luck)) { const p = window.Plus.luckP(); if (p) t.rig.luck = { seat: 0, p }; }
     if (S.legend === 'monkey' || S.legend === 'bottom') {
       if (S.game === 'blackjack') t.rig.force = { seat: 0, cards: bjForce(S.legend) };
       else t.rig.force = pokerForce(S.game, S.legend);
@@ -465,6 +465,7 @@ const Plus = (() => {
     else if (roomTab === 'clues') roomClues(body);
     else if (roomTab === 'items') roomItems(body);
     else if (roomTab === 'rest') roomRest(body);
+    else if (window.HW) HW.closet(body);
     else body.append(h('div', { class: 'panel' }, h('h3', { text: '옷장' }), h('p', { class: 'note', text: '아직 비어 있어요. 나중에 이벤트 의상이나 기념품이 생기면 여기 걸려요.' })));
   }
   function roomTitles(body) {

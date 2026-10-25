@@ -1,6 +1,7 @@
 const {chromium}=require('playwright');const fs=require('fs');
 (async()=>{const b=await chromium.launch();const users={};const wallets={};let n=0;
 async function mk(vp){const ctx=await b.newContext({viewport:vp||{width:1180,height:900}});
+await ctx.addInitScript(()=>{window.HW_TEST_OFF=true;});
 await ctx.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
 await ctx.route('https://omofqvclwetstbuoumzg.supabase.co/**',async r=>{const u=new URL(r.request().url());const m=r.request().method();const body=r.request().postData()?JSON.parse(r.request().postData()):null;
  const J=(s,o)=>r.fulfill({status:s,contentType:'application/json',body:JSON.stringify(o)});
