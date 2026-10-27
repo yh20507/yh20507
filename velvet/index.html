@@ -7013,7 +7013,35 @@ const Snd = (() => {
   const F_SCALE = ['F5', 'G5', 'A5', 'Bb5', 'C6', 'D6', 'E5', 'D5', 'C5'];
   const VIBES = [[1, 1], [4, 0.15], [10, 0.04]];
   const AU = [['A3', 'C4', 'E4', 'A1'], ['A3', 'C4', 'E4', 'A1'], ['F3', 'A3', 'C4', 'F1'], ['F3', 'A3', 'C4', 'F1'], ['D3', 'F3', 'A3', 'D2'], ['D3', 'F3', 'A3', 'D2'], ['E3', 'G#3', 'B3', 'E2'], ['E3', 'G#3', 'B3', 'E2']];
+  // 로비 재즈 발라드 (E♭장조, 느리게): E♭maj7 Cm7 Fm7 B♭7 Gm7 C7 Fm7 B♭7
+  const LJ = [['Eb2', ['G3', 'Bb3', 'D4', 'F4']], ['C2', ['Eb4', 'G4', 'Bb4', 'D5']], ['F2', ['Ab3', 'C4', 'Eb4', 'G4']], ['Bb1', ['Ab3', 'D4', 'G4', 'C5']],
+    ['G2', ['Bb3', 'D4', 'F4', 'A4']], ['C2', ['Bb3', 'E4', 'A4', 'D5']], ['F2', ['Ab3', 'C4', 'Eb4', 'G4']], ['Bb1', ['Ab3', 'D4', 'G4', 'C5']]];
+  const EB_SCALE = ['Eb5', 'F5', 'G5', 'Ab5', 'Bb5', 'C6', 'D5', 'C5', 'Bb4'];
+  // 로비 클래식: 바흐 「평균율 클라비어곡집 1권」 전주곡 C장조(BWV 846) 1~19마디. 마디마다 화음 다섯 음을 펼쳐 친다.
+  const BACH = [['C4', 'E4', 'G4', 'C5', 'E5'], ['C4', 'D4', 'A4', 'D5', 'F5'], ['B3', 'D4', 'G4', 'D5', 'F5'], ['C4', 'E4', 'G4', 'C5', 'E5'],
+    ['C4', 'E4', 'A4', 'E5', 'A5'], ['C4', 'D4', 'F#4', 'A4', 'D5'], ['B3', 'D4', 'G4', 'D5', 'G5'], ['B3', 'C4', 'E4', 'G4', 'C5'],
+    ['A3', 'C4', 'E4', 'G4', 'C5'], ['D3', 'A3', 'D4', 'F#4', 'C5'], ['G3', 'B3', 'D4', 'G4', 'B4'], ['G3', 'Bb3', 'E4', 'G4', 'C#5'],
+    ['F3', 'A3', 'D4', 'A4', 'D5'], ['F3', 'Ab3', 'D4', 'F4', 'B4'], ['E3', 'G3', 'C4', 'G4', 'C5'], ['E3', 'F3', 'A3', 'C4', 'F4'],
+    ['D3', 'F3', 'A3', 'C4', 'F4'], ['G2', 'D3', 'G3', 'B3', 'F4'], ['C3', 'E3', 'G3', 'C4', 'E4']];
   const T = {
+    lobby_jazz: { bpm: 66, beats: 4, bars: 8, verb: 2.2, bar(E_, bus, t, i) {
+      const bt = 60 / 66, rv = bus.rv, [root, voi] = LJ[i], r = midi(root);
+      I.bass(E_, bus, t, mhz(r), bt * 1.9, 0.16, rv);
+      I.bass(E_, bus, t + 2 * bt, mhz(r + (Math.random() < 0.7 ? 7 : 12)), bt * 1.9, 0.12, rv);
+      voi.forEach((n, k) => I.piano(E_, bus, t + k * 0.05, hz(n), bt * 2, 0.04, rv, 0.3));
+      if (Math.random() < 0.6) voi.forEach((n) => I.piano(E_, bus, t + 2.5 * bt, hz(n), bt * 1.2, 0.022, rv, 0.3));
+      if (Math.random() < 0.55) { let b = rand([0.5, 1, 1.5]); const cnt = 2 + Math.floor(Math.random() * 3);
+        for (let k = 0; k < cnt && b < 4; k++) { I.piano(E_, bus, t + b * bt, hz(rand(EB_SCALE)), bt, 0.04, rv, 0.35); b += rand([0.5, 1, 1, 1.5]); } }
+      for (const b of [0, 2]) I.swish(E_, bus, t + b * bt, 0.014, 0.5);
+      I.cym(E_, bus, t + 3 * bt, 0.008, rv);
+    } },
+    lobby_classic: { bpm: 64, beats: 4, bars: 19, verb: 2.4, bar(E_, bus, t, i) {
+      const sx = 60 / 64 / 4, ns = BACH[i];
+      for (const half of [0, 8]) [0, 1, 2, 3, 4, 2, 3, 4].forEach((k, j) => {
+        const tt = t + (half + j) * sx, dur = k === 0 ? sx * 8 : k === 1 ? sx * 7 : sx * 2;
+        I.piano(E_, bus, tt, hz(ns[k]), dur, (k === 0 ? 0.06 : 0.042) * (0.92 + Math.random() * 0.16), bus.rv, 0.3);
+      });
+    } },
     halloween: { bpm: 84, beats: 3, bars: 24, verb: 3.0, bar(E_, bus, t, i) {
       const bt = 60 / 84, rv = bus.rv;
       if (i % 8 === 0) I.wind(E_, bus, t, bt * 24 + 1, 0.05, rv);
@@ -7075,7 +7103,7 @@ const Snd = (() => {
   };
 
   // ───────── 재생 ─────────
-  const M = { name: null, bus: null, nextT: 0, bar: 0, loop: 0, duckUntil: 0 };
+  const M = { want: undefined, name: null, bus: null, nextT: 0, bar: 0, loop: 0, duckUntil: 0 };
   const HT = { bpm: 0, nextT: 0, owner: '' };
   const HEART_V = 0.55;
   function applyVol() {
@@ -7086,8 +7114,13 @@ const Snd = (() => {
     E.bgm.gain.setTargetAtTime(q(vol.bgm) * 0.9, now, 0.05);
     E.sfx.gain.setTargetAtTime(q(vol.sfx), now, 0.05);
   }
-  function setMusic(name) {
-    if (!ctx || M.name === name) return;
+  const LOBBY = ['lobby_jazz', 'lobby_classic'];
+  function setMusic(want) {
+    if (!ctx || M.want === want) return;
+    M.want = want;
+    startTrack(want === 'lobby' ? rand(LOBBY) : want);
+  }
+  function startTrack(name) {
     const now = ctx.currentTime;
     if (M.bus) { const g = M.bus; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now); g.gain.linearRampToValueAtTime(0, now + 1.2); setTimeout(() => { try { g.disconnect(); } catch (e) { /* 이미 끊김 */ } }, 2600); }
     M.name = name; M.bus = null;
@@ -7107,7 +7140,13 @@ const Snd = (() => {
     if (M.bus && M.name) {
       const tr = T[M.name], bd = tr.beats * 60 / tr.bpm;
       if (M.nextT < now) M.nextT = now + 0.05;
-      while (M.nextT < now + 1.5) { try { tr.bar(E, M.bus, M.nextT, M.bar, M.loop); } catch (e) { /* 한 마디 건너뜀 */ } M.nextT += bd; if (++M.bar >= tr.bars) { M.bar = 0; M.loop++; } }
+      let swap = null;
+      while (M.nextT < now + 1.5) {
+        try { tr.bar(E, M.bus, M.nextT, M.bar, M.loop); } catch (e) { /* 한 마디 건너뜀 */ }
+        M.nextT += bd;
+        if (++M.bar >= tr.bars) { M.bar = 0; M.loop++; if (M.want === 'lobby' && M.loop >= 2 && Math.random() < 0.5) { swap = LOBBY.find((x) => x !== M.name); break; } }
+      }
+      if (swap) startTrack(swap);
     }
     if (HT.bpm) {
       if (HT.nextT < now) HT.nextT = now + 0.05;
@@ -7115,7 +7154,7 @@ const Snd = (() => {
     }
   }
   // 화면에 맞는 배경음 고르기
-  function base() { return window.HW && HW.isOn() ? 'halloween' : null; }
+  function base() { return window.HW && HW.isOn() ? 'halloween' : 'lobby'; }
   function route() {
     if (!ctx) return;
     const plus = document.getElementById('scrPlus'), tab = document.getElementById('scrTable'), app = document.getElementById('app');
@@ -7234,7 +7273,7 @@ const Snd = (() => {
     return oc.startRendering();
   }
 
-  return { play, act, heart, init, route, vol, applyVol, render, SFX, T, get ctx() { return ctx; }, get music() { return M.name; }, get heartBpm() { return HT.bpm; } };
+  return { play, act, heart, init, route, vol, applyVol, render, SFX, T, get ctx() { return ctx; }, get music() { return M.want; }, get track() { return M.name; }, get heartBpm() { return HT.bpm; } };
 })();
 window.Snd = Snd;
 </script>

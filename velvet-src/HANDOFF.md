@@ -14,7 +14,7 @@ velvet-src/HANDOFF.md 를 먼저 읽어 줘. 나는 코딩을 잘 몰라. 설명
   friends.js(친구 멀티), plus_core.js(칭호 120개·정산·내 방), plus_games.js(룰렛·섯다·인디언·체스),
   plus_special.js(경매장·13번 테이블·바), plus_more.js(아침 회전판·바카라·슬롯·지하), head.html/plus.css.html(디자인),
   plus_hw.js + hw.css.html(할로윈 이벤트)
-  sound.js(소리: 파일 없이 코드로 연주, 배경음 4곡+13번 심장, 효과음, 위쪽 막대 🔊에서 전체·배경음·효과음 음량, 기기별 저장)
+  sound.js(소리: 파일 없이 코드로 연주, 배경음 4곡+로비(재즈 발라드·바흐 전주곡 C장조 중 랜덤)+13번 심장, 효과음, 위쪽 막대 🔊에서 전체·배경음·효과음 음량, 기기별 저장)
 - 그림: velvet/hw/*.webp (게임 주소 옆 폴더). index.html 과 같이 올려야 그림이 나옴
 - 시험: t_plus_ui.cjs, t_mini.cjs (playwright + 가짜 Supabase), t_plus_unit.cjs, t_hw.cjs(할로윈),
   t_sound.cjs(소리: 모든 소리를 만들어 크기 검사, `node t_sound.cjs 폴더` 로 미리듣기 wav 저장)

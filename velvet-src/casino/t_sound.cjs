@@ -26,7 +26,7 @@ await p.evaluate(()=>{App.closeDialog();const w=App.W.data;w.chips=50000;w.wheel
 check('audio started', await p.evaluate(()=>!!Snd.ctx&&Snd.ctx.state==='running'));
 // 모든 소리를 만들어 보고 검사
 const list=[['sfx','check',1],['sfx','call',1],['sfx','raise',1.2],['sfx','allin',2],['sfx','fold',0.8],['sfx','win',2],['sfx','broke',22],['sfx','clue',3.5],['sfx','buy',1.5],['sfx','gavel',1.5],['sfx','curse',4],['sfx','contract',4.5],['sfx','caught',6],['sfx','spin',2.5],['sfx','click',1],['sfx','gun',3.5],['sfx','omen',3],
-  ['heart',62,8],['heart',118,6],['track','halloween',60],['track','bar',45],['track','auction',30],['track','under',40]];
+  ['heart',62,8],['heart',118,6],['track','halloween',60],['track','bar',45],['track','auction',30],['track','under',40],['track','lobby_jazz',40],['track','lobby_classic',72]];
 for(const [k,nm,secs] of list){
   const r=await p.evaluate(async([k,nm,secs])=>{const buf=await Snd.render(k,nm,secs);const a=buf.getChannelData(0),c=buf.getChannelData(1);let pk=0,sum=0,nan=0,last=0;
     for(let i=0;i<a.length;i++){const v=Math.max(Math.abs(a[i]),Math.abs(c[i]));if(!(v===v)){nan++;continue;}if(v>pk)pk=v;sum+=a[i]*a[i];if(v>0.001)last=i;}
@@ -47,7 +47,7 @@ await p.evaluate(()=>Plus.bar.open());check('bar jazz', (await mus())==='bar');
 await p.evaluate(()=>Plus.auction.open());check('auction', (await mus())==='auction');
 await p.evaluate(()=>{App.W.data.st.t13Visit=1;Plus.under.open();});check('under', (await mus())==='under');
 await p.evaluate(()=>{Plus.stopAll();App.show('scrLobby');App.renderLobby();});check('back to lobby', (await mus())==='halloween');
-await p.evaluate(()=>{HW.H().force='off';HW.apply();});check('no event no music', (await mus())===null);
+await p.evaluate(()=>{HW.H().force='off';HW.apply();});check('no event: lobby music', (await mus())==='lobby' && ['lobby_jazz','lobby_classic'].includes(await p.evaluate(()=>Snd.track)));
 // 13번 테이블: 배경음 없이 심장, 내 차례면 빨라짐
 await p.evaluate(()=>{const w=App.W.data;Plus.t13.adminOpen();App.save();App.show('scrLobby');App.renderLobby();});await p.waitForTimeout(200);
 await p.click('.t13-door');await p.waitForTimeout(900);
