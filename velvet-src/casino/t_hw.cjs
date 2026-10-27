@@ -86,7 +86,7 @@ await p.click('.hw-pull button:text-is("닫기")');await p.waitForTimeout(200);
 const sure=await p.evaluate(()=>{HW.H().candy=300000;let bad=0;for(let i=0;i<200;i++){const r=HW.pull(11);if(!r.some(x=>x.kind==='ev'||x.kind==='cos'))bad++;}return bad;});
 check('10+1 always has event item', sure===0);
 // 초레어 연출
-await p.evaluate(()=>{HW.H().candy=1000;window._R=Math.random;let first=true;Math.random=()=>{if(first){first=false;return 0.0001;}return window._R();};});
+await p.evaluate(()=>{HW.H().candy=1000;window._R=Math.random;const roll=HW.roll;HW._rollOnce=true;Math.random=()=>{const st=new Error().stack||'';if(HW._rollOnce&&st.includes('roll')){HW._rollOnce=false;return 0.0001;}return window._R();};});
 await p.evaluate(()=>HW.render());await p.waitForTimeout(200);
 await p.click('text=한 번 젓기');await p.evaluate(()=>{Math.random=window._R;});await p.waitForTimeout(1900);await p.screenshot({path:'hw_ultra_seq.png'});
 await p.waitForTimeout(1600);await p.screenshot({path:'hw_ultra.png'});
