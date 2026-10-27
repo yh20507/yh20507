@@ -424,7 +424,7 @@ const HW = (() => {
     let dark = null;
     if (cz && !reduce()) {
       cz.classList.add('brew');
-      if (omen) { cz.classList.add('omen'); dark = h('div', { class: 'hw-omen', 'aria-hidden': 'true' }); document.body.append(dark); heartbeat(3); await sleep(2300); }
+      if (omen) { cz.classList.add('omen'); dark = h('div', { class: 'hw-omen', 'aria-hidden': 'true' }); document.body.append(dark); if (window.Snd && Snd.ctx) Snd.play('omen'); else heartbeat(3); await sleep(2300); }
       else await sleep(1100);
     }
     try { if (n === 1) await showOne(res[0]); else await showMany(res); }

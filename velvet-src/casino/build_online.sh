@@ -5,6 +5,6 @@ cd "$(dirname "$0")"
   cat head.html plus.css.html hw.css.html
   printf '</head>\n<body>\n'
   cat body.html
-  for f in engine.js online.js app.js friends.js ../pchess/engine.js plus_core.js plus_games.js plus_special.js plus_more.js plus_hw.js; do printf '<script>\n'; cat "$f"; printf '</script>\n'; done
+  for f in engine.js online.js app.js friends.js ../pchess/engine.js plus_core.js plus_games.js plus_special.js plus_more.js plus_hw.js sound.js; do printf '<script>\n'; cat "$f"; printf '</script>\n'; done
   printf '<script>App.boot();</script>\n</body>\n</html>\n'
 } > 벨벳카지노.html

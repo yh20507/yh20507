@@ -361,11 +361,11 @@ const App = (() => {
   }
   function buy(id, p) {
     const w = W.data; if (w.chips < p) return;
-    w.chips -= p; w.items[id] = (w.items[id] || 0) + 1; save(); toast(ITEMS[id].name + '을(를) 샀어요.'); renderShop();
+    w.chips -= p; w.items[id] = (w.items[id] || 0) + 1; save(); if (window.Snd) Snd.play('buy'); toast(ITEMS[id].name + '을(를) 샀어요.'); renderShop();
   }
   function buyPerm(id, p) {
     const w = W.data; if (w.chips < p || w.perm[id]) return;
-    w.chips -= p; w.perm[id] = true; save(); toast(PERMS[id].name + '을(를) 손에 넣었어요.'); renderShop();
+    w.chips -= p; w.perm[id] = true; save(); if (window.Snd) Snd.play('buy'); toast(PERMS[id].name + '을(를) 손에 넣었어요.'); renderShop();
   }
 
   // ════════════════ 혼자 하는 포커 ════════════════
@@ -588,6 +588,7 @@ const App = (() => {
     if (it.legend) {
       if (S.pending.legend) return toast('이미 다음 판에 걸어 둔 물건이 있어요.');
       S.pending.legend = id;
+      if (window.Snd && it.kind === 'curse') Snd.play('curse');
       if (id === 'monkey' && W.data.items.monkey === 1) S.pending.legendLast = true;
       if (!consume(id, true)) return;
       toast(it.name + ': 다음 판에 효과가 걸려요.' + (S.pending.legendLast ? ' 마지막 손가락이에요…' : ''));

@@ -197,6 +197,7 @@
         }
       }
       t.acted[i] = true; t.last = { seat: i, text, type };
+      if (window.Snd) Snd.act(text);
       t.log.push(nm + ' ' + text); if (t.log.length > 30) t.log.shift();
       return true;
     };
@@ -247,6 +248,7 @@
         if (G.pending) return;
         if (id === 'monkey' && n === 1) G.pendingLast = true;
         w.items[id]--; G.pending = id;
+        if (window.Snd && it.kind === 'curse') Snd.play('curse');
         if (it.sus) { if (!P.addSus(it.sus, '딜러가 밑장을 빼는 손을 봤어요.')) return; P.inc('cheat'); }
         A.save(); A.toast(it.name + ': 다음 판에 효과가 걸려요.'); G.render();
       } }, h('span', { class: 'ico', svg: A.icon(id) }), h('b', { text: it.name + ' ×' + n + (ready ? ' · 준비됨' : '') }), h('small', { text: '판 시작 전' })));

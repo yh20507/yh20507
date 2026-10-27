@@ -245,6 +245,7 @@ const Cas = (() => {
     } else return false;
     s.acted = true;
     t.lastAct = { seat: i, text };
+    if (typeof window !== 'undefined' && window.Snd) window.Snd.act(text);
     say(t, s.name + ' ' + text);
     progress(t);
     return true;

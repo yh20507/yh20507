@@ -112,7 +112,7 @@
     const w = W();
     const amt = AU.leader === null ? AU.price : Math.max(AU.price + step(AU.price), Math.round(AU.price * mul / 10) * 10);
     if (amt > w.chips) return A.toast('칩이 부족해요.');
-    AU.myBid = true; bid('me', amt); renderLive();
+    AU.myBid = true; bid('me', amt); if (window.Snd) Snd.play('bid'); renderLive();
   }
   function finish(left) {
     const w = W(); if (!AU || AU.done) return;
@@ -129,6 +129,7 @@
     } else res = AU.leader === null ? 'none' : 'ai';
     if (res !== 'me' && AU.myBid) P.inc('auLose');
     w.auc.res[i] = res;
+    if (window.Snd && !left && res !== 'none') Snd.play('gavel');
     if ([0, 1, 2].every((k) => w.auc.res[k] === 'me')) P.inc('auAll');
     A.save(); A.renderTop(); P.check();
     if (!left) setTimeout(() => { if (AU && AU.done) { AU = null; openAuction(); } }, 1600);
@@ -214,6 +215,7 @@
   T13.door = () => h('button', { class: 't13-door', onclick: openT13 }, h('b', { text: '13' }), h('span', { text: '원래 없던 테이블이 하나 생겼어요.' }));
   let audio = null;
   function snd(kind) {
+    if (window.Snd && Snd.ctx) return Snd.play(kind === 'bang' ? 'gun' : kind === 'click' ? 'click' : 'spin');
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
       const t = audio.currentTime, len = kind === 'bang' ? 0.6 : 0.08;
@@ -270,6 +272,7 @@
     acts.innerHTML = '';
     const left = 6 - G13.idx;
     acts.append(h('p', { class: 'note', text: '남은 칸 ' + left + ' · 이번 칸에 총알이 있을 확률 ' + (left ? '1/' + left : '-') }));
+    if (window.Snd) Snd.heart(G13.turn === 'me' ? 118 : 80);   // 내가 쏠 차례면 심장이 빨라진다
     if (G13.turn === 'me') acts.append(h('button', { class: 'btn red', text: '방아쇠를 당긴다', onclick: () => pull('me') }));
     else setTimeout(() => pull('dealer'), 1600);
   }
@@ -279,7 +282,7 @@
     const k = G13.idx, hit = k === G13.bullet;
     const c = document.querySelector('#cyl13 [data-k="' + k + '"]'); if (c) c.classList.add(hit ? 'hit' : 'empty');
     G13.idx++;
-    if (hit) { G13.over = true; snd('bang'); document.body.classList.add('flash'); setTimeout(() => document.body.classList.remove('flash'), 400); return end13(who === 'me' ? 'lose' : 'win'); }
+    if (hit) { G13.over = true; snd('bang'); if (window.Snd) Snd.heart(who === 'me' ? 0 : 56); document.body.classList.add('flash'); setTimeout(() => document.body.classList.remove('flash'), 400); return end13(who === 'me' ? 'lose' : 'win'); }
     snd('click');
     G13.turn = who === 'me' ? 'dealer' : 'me';
     say([who === 'me' ? '(찰칵.) …운이 좋으시군요.' : '(찰칵.) 제 차례는 끝났습니다.'], turn13);
@@ -398,7 +401,7 @@
       if (lt && lt.replace) r = Object.assign({}, r, lt.replace);
       if (lt) for (const x of lt.before) B.msgs.push(x);
       const m = { who: 'bar', text: r.reply };
-      if (r.clue && !w.clues.includes(r.clue)) { w.clues.push(r.clue); const c = CLUES.find((x) => x.id === r.clue); m.clue = c ? c.title : ''; A.toast('수첩에 단서가 적혔어요: ' + m.clue); }
+      if (r.clue && !w.clues.includes(r.clue)) { w.clues.push(r.clue); const c = CLUES.find((x) => x.id === r.clue); m.clue = c ? c.title : ''; A.toast('수첩에 단서가 적혔어요: ' + m.clue); if (window.Snd) Snd.play('clue'); }
       B.msgs.push(m); if (lt) for (const x of lt.after) B.msgs.push(x);
       A.save(); P.check(); if (B.open) { openBar(); const i2 = $('#barIn'); if (i2) i2.focus(); }
     };

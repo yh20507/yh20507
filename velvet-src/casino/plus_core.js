@@ -566,7 +566,7 @@ const Plus = (() => {
     const w = W(); if (!(w.inv.contract > 0) || has('contract')) return;
     A.dialog('악마의 계약서', [h('p', { class: 'sub', text: '24시간 동안 이긴 칩이 두 배가 돼요. 계약이 끝나면 그동안 번 칩의 30%를 가져가고, 다음 날 아침 지급은 없어요. 서명할까요?' }),
       h('div', { class: 'row' }, h('button', { class: 'btn red', text: '서명한다', onclick: () => {
-        w.inv.contract--; inc('contract');
+        w.inv.contract--; inc('contract'); if (window.Snd) Snd.play('contract');
         const tomorrow = A.dayKey(Date.now() + DAY);
         w.act.contract = { until: Date.now() + DAY, earned: 0, noRefill: tomorrow };
         A.save(); A.closeDialog(); check(); A.toast('잉크가 붉게 번졌어요. 24시간이 시작됐어요.'); renderRoom();

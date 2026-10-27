@@ -284,7 +284,7 @@
       mk.append(h('div', { class: 'ware ug-ware' }, h('div', { class: 'head' }, h('span', { class: 'ico', svg: A.icon(m.id, 26) }), h('div', null, h('h3', { text: it.name }), h('div', { class: 'kind cheat', text: it.under ? '암시장 전용' : '암시장 할인' }))),
         h('p', { text: typeof it.desc === 'string' ? it.desc : it.desc.holdem }),
         h('div', { class: 'foot' }, h('span', { class: 'own', text: '가진 것 ' + (w.items[m.id] || 0) + '개' }),
-          h('button', { class: 'btn small gold', disabled: w.chips < m.price, onclick: () => { if (w.chips < m.price) return; w.chips -= m.price; w.items[m.id] = (w.items[m.id] || 0) + 1; P.inc('market'); A.save(); A.renderTop(); P.check(); A.toast(it.name + '을(를) 샀어요.'); openUnder(); } }, h('span', { class: 'chip-ico' }), ' ' + fmt(m.price)))));
+          h('button', { class: 'btn small gold', disabled: w.chips < m.price, onclick: () => { if (w.chips < m.price) return; w.chips -= m.price; w.items[m.id] = (w.items[m.id] || 0) + 1; P.inc('market'); if (window.Snd) Snd.play('buy'); A.save(); A.renderTop(); P.check(); A.toast(it.name + '을(를) 샀어요.'); openUnder(); } }, h('span', { class: 'chip-ico' }), ' ' + fmt(m.price)))));
     }
     el.append(h('h2', { text: '암시장', style: 'margin:24px 0 10px' }), h('p', { class: 'note', text: '여기서 산 물건도 지하에서 쓰면 30% 확률로 걸려요. 암시장 전용 물건은 지하에서만 쓸 수 있어요.', style: 'margin-bottom:10px' }), mk);
   }
@@ -367,7 +367,7 @@
     const lost = S.t.seats[0].stack;
     S.t.seats[0].stack = 0; w.table = null; A.S = null;
     w.ug.ban = today; w.ug.floor = today; w.sus = Math.max(w.sus, 50);
-    P.inc('ugCaught'); A.save(); A.renderTop(); P.check();
+    P.inc('ugCaught'); A.save(); A.renderTop(); P.check(); if (window.Snd) Snd.play('caught');
     A.dialog('지하 문지기가 팔을 붙잡습니다', [h('p', { class: 'sub', text: '아이템을 쓰다 들켰어요. 가져온 칩 ' + fmt(lost) + '칩을 전부 잃었어요. 오늘은 지하에 다시 내려올 수 없고, 하루 동안 의심이 50 아래로 내려가지 않아요.' }),
       h('div', { class: 'row' }, h('button', { class: 'btn gold', text: '위층으로', onclick: () => { A.closeDialog(); A.show('scrLobby'); A.renderLobby(); } }))], false);
   }
