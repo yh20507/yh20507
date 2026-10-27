@@ -28,7 +28,7 @@ velvet-src/HANDOFF.md 를 먼저 읽어 줘. 나는 코딩을 잘 몰라. 설명
 - 프로젝트 id: omofqvclwetstbuoumzg (velvet-casino, 무료 플랜)
 - 테이블: wallets(지갑 jsonb, 본인만 읽고 쓰기), bar_usage(바텐더 하루 사용량)
 - 서버 기능: bartender (Claude API). 비밀값 ANTHROPIC_API_KEY 는 아직 안 넣음 → 지금은 대본 바텐더로 동작
-- 관리자 아이디: yh20507 (왼쪽 위 VELVET 5번 누르기)
+- 관리자 아이디: yh20507 (왼쪽 위 VELVET 5번 누르기). "13번 테이블 지금 열기"로 오늘 바로 열 수 있음(일주일 금지도 풀림)
 
 ## 지금 들어 있는 것
 홀덤·세븐포커·블랙잭, 상점·금고·의심 게이지, 친구 멀티, 룰렛, 섯다, 인디언 포커, 체스룸, 경매장(14종),

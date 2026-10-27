@@ -1062,6 +1062,7 @@ const App = (() => {
     const row = (label, input) => h('label', { class: 'adm-row' }, h('span', { text: label }), input);
     const chips = numIn(w.chips), vault = numIn(w.vault), sus = numIn(w.sus, 100);
     const unban = h('input', { type: 'checkbox' });
+    const t13open = h('input', { type: 'checkbox' });
     const perms = {}, items = {};
     for (const id in PERMS) perms[id] = h('input', { type: 'checkbox', checked: !!w.perm[id] });
     for (const id in ITEMS) items[id] = numIn(w.items[id] || 0, 99);
@@ -1069,7 +1070,8 @@ const App = (() => {
       h('p', { class: 'sub', text: '숫자를 바꾸고 적용을 누르면 바로 저장돼요.' }),
       h('div', { class: 'adm-grid' },
         row('칩', chips), row('금고', vault), row('의심 (0~100)', sus),
-        banned() ? h('label', { class: 'adm-row adm-check' }, unban, h('span', { text: '오늘 출입 금지 풀기' })) : null),
+        banned() ? h('label', { class: 'adm-row adm-check' }, unban, h('span', { text: '오늘 출입 금지 풀기' })) : null,
+        window.Plus && Plus.t13 ? h('label', { class: 'adm-row adm-check' }, t13open, h('span', { text: '13번 테이블 지금 열기' })) : null),
       h('h3', { text: '영구 아이템' }),
       h('div', { class: 'adm-grid' }, Object.keys(PERMS).map((id) => h('label', { class: 'adm-row adm-check' }, perms[id], h('span', { text: PERMS[id].name })))),
       h('h3', { text: '아이템 개수' }),
@@ -1080,6 +1082,7 @@ const App = (() => {
           const n = (el, max) => { let v = Math.max(0, Math.floor(Number(el.value) || 0)); if (max != null) v = Math.min(max, v); return v; };
           w.chips = n(chips); w.vault = n(vault); w.sus = n(sus, 100);
           if (unban.checked) { w.banDay = null; if (w.sus >= 100) w.sus = 0; }
+          if (t13open.checked && window.Plus && Plus.t13) Plus.t13.adminOpen();
           for (const id in PERMS) { if (perms[id].checked) w.perm[id] = true; else delete w.perm[id]; }
           for (const id in ITEMS) { const v = n(items[id], 99); if (v) w.items[id] = v; else delete w.items[id]; }
           if (!w.perm.vault && w.vault) { w.chips += w.vault; w.vault = 0; }

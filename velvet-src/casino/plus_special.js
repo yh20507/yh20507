@@ -209,6 +209,8 @@
     if (Math.random() < p) { s.on = true; P.inc('t13Seen'); }
   };
   T13.active = () => { const s = t13state(); return s.on && !s.done; };
+  // 관리자: 오늘 13번 테이블을 바로 연다 (일주일 금지도 풀린다)
+  T13.adminOpen = () => { const s = t13state(); s.on = true; s.done = false; s.ban = ''; };
   T13.door = () => h('button', { class: 't13-door', onclick: openT13 }, h('b', { text: '13' }), h('span', { text: '원래 없던 테이블이 하나 생겼어요.' }));
   let audio = null;
   function snd(kind) {
